@@ -1,12 +1,13 @@
 import configparser
+import sys
 import urllib.parse
 import urllib.request
 import webbrowser
 
-import rumps
-
-import configuration
-import datastore
+if ('pytest' not in sys.modules):
+    import rumps as rumps
+else:
+    import tests.mocks.rumps as rumps
 
 class TimeTrackerStatusBarApp(rumps.App):
     def __init__(self, logger=None):
@@ -88,17 +89,3 @@ class TimeTrackerStatusBarApp(rumps.App):
         self.ensure_current_update_url()
         self.update_menu()
         self.update_indicator()
-
-if __name__ == "__main__":
-    logger = None
-    # logger = print
-
-    app = TimeTrackerStatusBarApp(logger=logger)
-
-    config = configuration.TimeTrackerConfiguration(app, logger=logger)
-    app.set_config(config)
-
-    store = datastore.TimeTrackerDataStore(logger=logger)
-    app.set_datastore(store)
-
-    app.run()

@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 import urllib.request
 
-import utility
+import timetracker.utility
 
 class TimeTrackerDataStore():
     def __init__(self, logger=None):
@@ -47,7 +47,7 @@ class TimeTrackerDataStore():
     def update(self):
         if self.is_cache_valid():
             return
-        if not utility.is_url_valid(self.update_url):
+        if not timetracker.utility.is_url_valid(self.update_url):
             return
         try:
             with urllib.request.urlopen(self.update_url) as http_response:

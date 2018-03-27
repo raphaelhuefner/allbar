@@ -1,8 +1,12 @@
 import configparser
+import sys
 
-import rumps
+if ('pytest' not in sys.modules):
+    import rumps as rumps
+else:
+    import tests.mocks.rumps as rumps
 
-import utility
+import timetracker.utility
 
 class TimeTrackerConfiguration():
     def __init__(self, app, file_name='timetracker.ini', logger=None):
@@ -36,7 +40,7 @@ class TimeTrackerConfiguration():
             self.is_cancelled = True
         if 1 is prompt_response.clicked: # "OK" button
             url = prompt_response.text.strip()
-            if utility.is_url_valid(url):
+            if timetracker.utility.is_url_valid(url):
                 self.write(url)
                 return url
             else:

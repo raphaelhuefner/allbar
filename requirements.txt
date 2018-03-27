@@ -1,6 +1,11 @@
 altgraph==0.15
+attrs==17.4.0
+coverage==4.5.1
 macholib==1.9
 modulegraph==0.16
+more-itertools==4.1.0
+pluggy==0.6.0
+py==1.5.3
 py2app==0.14
 pyobjc==4.1
 pyobjc-core==4.1
@@ -62,4 +67,7 @@ pyobjc-framework-StoreKit==4.1
 pyobjc-framework-SyncServices==4.1
 pyobjc-framework-SystemConfiguration==4.1
 pyobjc-framework-WebKit==4.1
+pytest==3.5.0
+pytest-cov==2.5.1
 rumps==0.2.2
+six==1.11.0

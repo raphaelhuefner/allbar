@@ -1,8 +1,11 @@
+/.eggs/
+/.pytest_cache/
 /bin/
-/include/
-/lib/
 /build/
 /dist/
+/include/
+/lib/
+.coverage
 pip-selfcheck.json
 __pycache__
 *.py[cod]

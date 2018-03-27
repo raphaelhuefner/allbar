@@ -1,8 +1,8 @@
 from setuptools import setup
 
-APP = ['timetracker.py']
+APP = ['run_app.py']
 DATA_FILES = []
-OPTIONS = {
+PY2APP_OPTIONS = {
     'argv_emulation': True,
     'plist': {
         'LSUIElement': True,
@@ -15,6 +15,6 @@ setup(
     name='Time Tracker', # use with py2app
     app=APP,
     data_files=DATA_FILES,
-    options={'py2app': OPTIONS},
+    options={'py2app': PY2APP_OPTIONS},
     setup_requires=['py2app'],
 )
