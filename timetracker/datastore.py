@@ -20,7 +20,7 @@ class TimeTrackerDataStore():
         if hasattr(self.logger, '__call__'):
             self.logger(*args)
 
-    def set_udate_url(self, update_url):
+    def set_update_url(self, update_url):
         if self.update_url is not update_url:
             self.invalidate_cache()
         self.update_url = update_url

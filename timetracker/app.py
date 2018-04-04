@@ -82,7 +82,7 @@ class TimeTrackerStatusBarApp(rumps.App):
 
     def ensure_current_update_url(self):
         update_url = self.config.get_update_url()
-        self.datastore.set_udate_url(update_url)
+        self.datastore.set_update_url(update_url)
 
     @rumps.timer(1)
     def refresh(self, _):
