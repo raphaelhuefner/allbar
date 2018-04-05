@@ -1,17 +1,22 @@
-import urllib.parse
+import rfc3987
 
-def is_url_valid(url, accepted_url_schemes=['http', 'https', 'file']):
-    url_parts = urllib.parse.urlparse(url)
+def is_url_valid(url, accepted_url_schemes=['http', 'https', 'file', 'data', 'ftp']):
+    if not isinstance(url, str):
+        return False
+    try:
+        parts = rfc3987.parse(url, 'IRI')
+    except ValueError:
+        return False
     return (
-        url_parts.scheme in accepted_url_schemes
+        parts['scheme'] in accepted_url_schemes
         and
         (
-            '' != url_parts.netloc
+            '' != parts['authority']
             or
             (
-                'file' == url_parts.scheme
+                'file' == parts['scheme']
                 and
-                '' != url_parts.path
+                '' != parts['path']
             )
         )
     )

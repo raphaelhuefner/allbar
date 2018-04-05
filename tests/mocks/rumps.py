@@ -87,24 +87,33 @@ class App():
         pass
 
 
-class Menu():
-    def __init__(self):
-        pass
-
-    def clear(self):
-        pass
-
-    def add(self, iterable):
-        pass
-
-    def update(self, iterable):
-        pass
-
-
 class MenuItem():
     def __init__(self, title, callback):
         self.title = title
         self.callback = callback
+
+
+class Menu():
+    def __init__(self):
+        self.clear()
+
+    def clear(self):
+        self._items = []
+
+    def add(self, item):
+        self._items.append(item)
+        pass
+
+    def update(self, iterable):
+        self.clear()
+        if isinstance(iterable, MenuItem):
+            self.add(iterable)
+        else:
+            for item in iterable:
+                self.add(item)
+
+    def mock_get_item(self, index):
+        return self._items[index]
 
 
 class Response():

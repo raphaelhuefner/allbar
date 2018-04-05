@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 import urllib.request
 
+import timetracker.update
 import timetracker.utility
 
 class TimeTrackerDataStore():
@@ -36,13 +37,7 @@ class TimeTrackerDataStore():
         self.cache_last_updated = datetime(1970, 1, 1)
 
     def is_new_data_valid(self, new_data):
-        return (
-            'ttl' in new_data
-            and
-            'indicators' in new_data
-            and
-            'menu' in new_data
-        )
+        return timetracker.update.is_valid(new_data)
 
     def update(self):
         if self.is_cache_valid():

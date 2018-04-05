@@ -1,13 +1,16 @@
-import pytest
+import urllib.request
+import webbrowser
 
-import timetracker.utility
+import pytest
 
 from timetracker.app import TimeTrackerStatusBarApp
 from timetracker.configuration import TimeTrackerConfiguration
 from timetracker.datastore import TimeTrackerDataStore
+from timetracker.update import is_valid as is_update_valid
 from timetracker.utility import is_url_valid
 
 import tests.mocks.rumps as rumps
+import tests.mocks.urllib
 
 class TestTimeTracker():
 
@@ -94,3 +97,138 @@ class TestTimeTracker():
         rumps.Window.mock_response(rumps.Response(2, 'https://under.testing/update'))
         app.config.show_ui()
         assert rumps.was_application_quit
+
+    def get_minimal_update_json(self):
+        return """
+            {
+                "ttl": 8,
+                "indicators": ["a", "b"],
+                "menu": [
+                    {
+                        "title": "Menu Item 1",
+                        "url": "https://under.testing/menu-item-1",
+                        "action": "get_url",
+                        "active": false
+                    },
+                    {
+                        "title": "Menu Item 2",
+                        "url": "https://under.testing/menu-item-2",
+                        "action": "post_url",
+                        "active": false,
+                        "prompt_title": "POST prompt title",
+                        "prompt_message": "POST prompt message"
+                    },
+                    {
+                        "title": "Menu Item 3",
+                        "url": "https://under.testing/menu-item-3",
+                        "action": "open_url",
+                        "active": false
+                    }
+                ]
+            }
+        """
+
+    def test_update_is_valid_accepts_schematic_json_string(self):
+        assert is_update_valid(self.get_minimal_update_json())
+
+    def test_update_is_valid_rejects_non_json_strings(self):
+        assert not is_update_valid("Hello World!")
+
+    def test_update_is_valid_rejects_unschematic_updates(self):
+        assert not is_update_valid({"ttl":"invalid"})
+
+    def test_datastore_corrupt_data_does_not_update(self, monkeypatch, app):
+        monkeypatch.setattr(urllib.request, 'urlopen', tests.mocks.urllib.urlopen)
+        app.datastore.set_update_url('https://under.testing/update')
+        corrupt_responses = [
+            tests.mocks.urllib.HTTPResponse(404, 'not found'),
+            tests.mocks.urllib.HTTPResponse(200, '{"funny":"json"}'),
+        ]
+        for response in corrupt_responses:
+            tests.mocks.urllib.mock_responses['https://under.testing/update'] = response
+            assert [] == app.datastore.get_current_menu_settings()
+            assert '0:00' == app.datastore.get_current_indicator()
+            assert '0:00' == app.datastore.get_current_indicator()
+
+    def test_datastore_updates(self, monkeypatch, app):
+        new_data = self.get_minimal_update_json()
+        tests.mocks.urllib.mock_responses['https://under.testing/update'] = tests.mocks.urllib.HTTPResponse(200, new_data)
+        monkeypatch.setattr(urllib.request, 'urlopen', tests.mocks.urllib.urlopen)
+        app.datastore.set_update_url('https://under.testing/update')
+        expected_menu = [
+            {
+                "title": "Menu Item 1",
+                "url": "https://under.testing/menu-item-1",
+                "action": "get_url",
+                "active": False
+            },
+            {
+                "title": "Menu Item 2",
+                "url": "https://under.testing/menu-item-2",
+                "action": "post_url",
+                "active": False,
+                "prompt_title": "POST prompt title",
+                "prompt_message": "POST prompt message"
+            },
+            {
+                "title": "Menu Item 3",
+                "url": "https://under.testing/menu-item-3",
+                "action": "open_url",
+                "active": False
+            }
+        ]
+        assert expected_menu == app.datastore.get_current_menu_settings()
+        app.datastore.current_indicator_index = 0
+        assert 'b' == app.datastore.get_current_indicator()
+        assert 'a' == app.datastore.get_current_indicator()
+        assert 'b' == app.datastore.get_current_indicator()
+        assert 'a' == app.datastore.get_current_indicator()
+
+    def test_app_refreshes_with_new_data(self, monkeypatch, app):
+        app.mock_files({
+            app.config.file_name: """
+                [timetracker]
+                update_url=https://under.testing/update
+            """
+        })
+
+        new_data = self.get_minimal_update_json()
+        tests.mocks.urllib.mock_responses['https://under.testing/update'] = tests.mocks.urllib.HTTPResponse(200, new_data)
+        monkeypatch.setattr(urllib.request, 'urlopen', tests.mocks.urllib.urlopen)
+
+        app.refresh(None)
+        assert 'b' == app.title
+        assert 'https://under.testing/menu-item-1' == app.menu.mock_get_item(0).url
+        assert 'https://under.testing/menu-item-2' == app.menu.mock_get_item(1).url
+        assert 'https://under.testing/menu-item-3' == app.menu.mock_get_item(2).url
+
+    def test_app_menu_callbacks(self, monkeypatch, app):
+        app.mock_files({
+            app.config.file_name: """
+                [timetracker]
+                update_url=https://under.testing/update
+            """
+        })
+
+        new_data = self.get_minimal_update_json()
+        tests.mocks.urllib.mock_responses['https://under.testing/update'] = tests.mocks.urllib.HTTPResponse(200, new_data)
+        monkeypatch.setattr(urllib.request, 'urlopen', tests.mocks.urllib.urlopen)
+
+        app.refresh(None)
+
+        app.get_url(app.menu.mock_get_item(0))
+        # assert ?
+
+        app.post_url(app.menu.mock_get_item(1))
+        # assert ?
+
+        mock_new_tab_url = None
+        def open_new_tab(url):
+            nonlocal mock_new_tab_url
+            mock_new_tab_url = url
+        monkeypatch.setattr(webbrowser, 'open_new_tab', open_new_tab)
+        app.open_url(app.menu.mock_get_item(2))
+        assert 'https://under.testing/menu-item-3' == mock_new_tab_url
+
+        app.preferences(None)
+        # assert ?
