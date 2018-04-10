@@ -1,3 +1,5 @@
+import json
+import os.path
 import urllib.request
 import webbrowser
 
@@ -6,7 +8,7 @@ import pytest
 from timetracker.app import TimeTrackerStatusBarApp
 from timetracker.configuration import TimeTrackerConfiguration
 from timetracker.datastore import TimeTrackerDataStore
-from timetracker.update import is_valid as is_update_valid
+import timetracker.update
 from timetracker.utility import is_url_valid
 
 import tests.mocks.rumps as rumps
@@ -99,43 +101,18 @@ class TestTimeTracker():
         assert rumps.was_application_quit
 
     def get_minimal_update_json(self):
-        return """
-            {
-                "ttl": 8,
-                "indicators": ["a", "b"],
-                "menu": [
-                    {
-                        "title": "Menu Item 1",
-                        "url": "https://under.testing/menu-item-1",
-                        "action": "get_url",
-                        "active": false
-                    },
-                    {
-                        "title": "Menu Item 2",
-                        "url": "https://under.testing/menu-item-2",
-                        "action": "post_url",
-                        "active": false,
-                        "prompt_title": "POST prompt title",
-                        "prompt_message": "POST prompt message"
-                    },
-                    {
-                        "title": "Menu Item 3",
-                        "url": "https://under.testing/menu-item-3",
-                        "action": "open_url",
-                        "active": false
-                    }
-                ]
-            }
-        """
+        file_name = os.path.join(os.path.dirname(__file__), 'json/minimal_update.json')
+        with open(file_name) as f:
+            return f.read()
 
-    def test_update_is_valid_accepts_schematic_json_string(self):
-        assert is_update_valid(self.get_minimal_update_json())
+    def test_update_validator_accepts_schematic_json_string(self):
+        assert timetracker.update.Validator().is_valid(self.get_minimal_update_json())
 
-    def test_update_is_valid_rejects_non_json_strings(self):
-        assert not is_update_valid("Hello World!")
+    def test_update_validator_rejects_non_json_strings(self):
+        assert not timetracker.update.Validator().is_valid("Hello World!")
 
-    def test_update_is_valid_rejects_unschematic_updates(self):
-        assert not is_update_valid({"ttl":"invalid"})
+    def test_update_validator_rejects_unschematic_updates(self):
+        assert not timetracker.update.Validator().is_valid({"ttl":"invalid"})
 
     def test_datastore_corrupt_data_does_not_update(self, monkeypatch, app):
         monkeypatch.setattr(urllib.request, 'urlopen', tests.mocks.urllib.urlopen)
@@ -152,31 +129,11 @@ class TestTimeTracker():
 
     def test_datastore_updates(self, monkeypatch, app):
         new_data = self.get_minimal_update_json()
-        tests.mocks.urllib.mock_responses['https://under.testing/update'] = tests.mocks.urllib.HTTPResponse(200, new_data)
+        response = tests.mocks.urllib.HTTPResponse(200, new_data)
+        tests.mocks.urllib.mock_responses['https://under.testing/update'] = response
         monkeypatch.setattr(urllib.request, 'urlopen', tests.mocks.urllib.urlopen)
         app.datastore.set_update_url('https://under.testing/update')
-        expected_menu = [
-            {
-                "title": "Menu Item 1",
-                "url": "https://under.testing/menu-item-1",
-                "action": "get_url",
-                "active": False
-            },
-            {
-                "title": "Menu Item 2",
-                "url": "https://under.testing/menu-item-2",
-                "action": "post_url",
-                "active": False,
-                "prompt_title": "POST prompt title",
-                "prompt_message": "POST prompt message"
-            },
-            {
-                "title": "Menu Item 3",
-                "url": "https://under.testing/menu-item-3",
-                "action": "open_url",
-                "active": False
-            }
-        ]
+        expected_menu = json.loads(new_data)['menu']
         assert expected_menu == app.datastore.get_current_menu_settings()
         app.datastore.current_indicator_index = 0
         assert 'b' == app.datastore.get_current_indicator()
@@ -198,9 +155,10 @@ class TestTimeTracker():
 
         app.refresh(None)
         assert 'b' == app.title
-        assert 'https://under.testing/menu-item-1' == app.menu.mock_get_item(0).url
-        assert 'https://under.testing/menu-item-2' == app.menu.mock_get_item(1).url
-        assert 'https://under.testing/menu-item-3' == app.menu.mock_get_item(2).url
+        assert 'https://under.testing/menu-item-1' == app.menu.mock_get_item(0).open_url
+        assert 'https://under.testing/menu-item-2?prompt=prompt_placeholder' == app.menu.mock_get_item(1).request['url']
+        assert 'https://under.testing/menu-item-3?prompt=prompt_placeholder' == app.menu.mock_get_item(2).request['url']
+        assert 'https://under.testing/menu-item-4' == app.menu.mock_get_item(3).request['url']
 
     def test_app_menu_callbacks(self, monkeypatch, app):
         app.mock_files({
@@ -216,19 +174,53 @@ class TestTimeTracker():
 
         app.refresh(None)
 
-        app.get_url(app.menu.mock_get_item(0))
-        # assert ?
-
-        app.post_url(app.menu.mock_get_item(1))
-        # assert ?
-
         mock_new_tab_url = None
         def open_new_tab(url):
             nonlocal mock_new_tab_url
             mock_new_tab_url = url
         monkeypatch.setattr(webbrowser, 'open_new_tab', open_new_tab)
-        app.open_url(app.menu.mock_get_item(2))
-        assert 'https://under.testing/menu-item-3' == mock_new_tab_url
+        app.open_url(app.menu.mock_get_item(0))
+        assert 'https://under.testing/menu-item-1' == mock_new_tab_url
+
+        tests.mocks.urllib.mocked_requests = []
+        rumps.Window.mock_response(rumps.Response(1, 'prompt_input_for_json'))
+        app.send_request(app.menu.mock_get_item(1))
+        assert 1 == len(tests.mocks.urllib.mocked_requests)
+        request = tests.mocks.urllib.mocked_requests[0]
+        assert 'https://under.testing/menu-item-2?prompt=prompt_input_for_json' == request.get_full_url()
+        assert 'POST' == request.get_method()
+        assert [("Content-type", "application/json"), ("X-prompt", "prompt_input_for_json")] == request.header_items()
+        assert b'{"prompt_placeholder": "prompt_input_for_json"}' == request.data
+
+        tests.mocks.urllib.mocked_requests = []
+        rumps.Window.mock_response(rumps.Response(0, 'prompt_input_cancelled'))
+        app.send_request(app.menu.mock_get_item(1))
+        assert 1 == len(tests.mocks.urllib.mocked_requests)
+        request = tests.mocks.urllib.mocked_requests[0]
+        assert 'https://under.testing/menu-item-2?prompt=prompt_placeholder' == request.get_full_url()
+        assert 'POST' == request.get_method()
+        assert [("Content-type", "application/json"), ("X-prompt", "prompt_placeholder")] == request.header_items()
+        assert None == request.data
+
+        tests.mocks.urllib.mocked_requests = []
+        rumps.Window.mock_response(rumps.Response(1, 'prompt_input_for_form_encoded'))
+        app.send_request(app.menu.mock_get_item(2))
+        assert 1 == len(tests.mocks.urllib.mocked_requests)
+        request = tests.mocks.urllib.mocked_requests[0]
+        assert 'https://under.testing/menu-item-3?prompt=prompt_input_for_form_encoded' == request.get_full_url()
+        assert 'POST' == request.get_method()
+        assert [("Content-type", "application/x-www-form-urlencoded"), ("X-prompt", "prompt_input_for_form_encoded")] == request.header_items()
+        assert b'prompt_placeholder=prompt_input_for_form_encoded' == request.data
+
+        tests.mocks.urllib.mocked_requests = []
+        app.send_request(app.menu.mock_get_item(3))
+        assert 1 == len(tests.mocks.urllib.mocked_requests)
+        request = tests.mocks.urllib.mocked_requests[0]
+        print(request)
+        assert 'https://under.testing/menu-item-4' == request.get_full_url()
+        assert 'GET' == request.get_method()
+        assert [] == request.header_items()
+        assert None == request.data
 
         app.preferences(None)
-        # assert ?
+        # assert ? TODO

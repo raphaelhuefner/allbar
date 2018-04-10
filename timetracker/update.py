@@ -1,100 +1,47 @@
 import json
+import os.path
 
 import jsonschema
+import modulegraph.zipio
 
-def get_schema_json():
-    return """
-        {
-            "$schema": "http://json-schema.org/draft-04/schema#",
-            "title": "Update Record",
-            "description": "macOS Status Bar Time Tracker Update Record.",
-            "type": "object",
-            "properties": {
-                "ttl": {
-                    "title": "Time To Live",
-                    "description": "The time this data is valid for in seconds.",
-                    "type": "integer",
-                    "minimum": 0
-                },
-                "indicators": {
-                    "title": "Status Bar Indicator Strings",
-                    "description": "A list of strings to show in the status bar. Rotated 1 per second.",
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "menu": {
-                    "title": "Menu Items",
-                    "description": "The list of menu items to show. Without 'Preferences' nor 'Quit', those are hard-coded.",
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "title": {
-                                "type": "string"
-                            },
-                            "url": {
-                                "type": "string",
-                                "format": "uri"
-                            },
-                            "action": {
-                                "type": "string",
-                                "enum": ["get_url", "open_url", "post_url"]
-                            },
-                            "active": {
-                                "type": "boolean"
-                            },
-                            "prompt_title": {
-                                "type": "string"
-                            },
-                            "prompt_message": {
-                                "type": "string"
-                            }
-                        },
-                        "required": ["title", "url", "action", "active"],
-                        "dependencies": {
-                            "prompt_title": {
-                                "properties": {
-                                    "action": {
-                                        "type": "string",
-                                        "enum": ["post_url"]
-                                    }
-                                },
-                                "required": ["prompt_message"]
-                            },
-                            "prompt_message": {
-                                "properties": {
-                                    "action": {
-                                        "type": "string",
-                                        "enum": ["post_url"]
-                                    }
-                                },
-                                "required": ["prompt_title"]
-                            }
-                        }                            
-                    }
-                }
-            },
-            "required": ["ttl", "indicators", "menu"]
-        }
-    """
+class Validator():
+    def __init__(self, logger=None):
+        self._schema_json = None
+        self._validator = None
+        self._logger = logger
 
+    def log(self, *args):
+        if hasattr(self._logger, '__call__'):
+            self._logger(*args)
 
-def get_schema():
-    return json.loads(get_schema_json())
+    def get_schema_json(self):
+        if not self._schema_json:
+            file_name = os.path.join(os.path.dirname(__file__), 'json/update_schema.json')
+            with modulegraph.zipio.open(file_name) as f:
+                self._schema_json = f.read()
+        return self._schema_json
 
+    def get_schema(self):
+        return json.loads(self.get_schema_json())
 
-def is_valid(update):
-    if isinstance(update, str):
+    def get_validator(self):
+        if not self._validator:
+            self._validator = jsonschema.Draft4Validator(
+                self.get_schema(),
+                format_checker=jsonschema.draft4_format_checker
+            )
+        return self._validator
+
+    def is_valid(self, update):
+        if isinstance(update, str):
+            try:
+                update = json.loads(update)
+            except Exception as e:
+                self.log(e)
+                return False
         try:
-            update = json.loads(update)
-        except Exception:
+            self.get_validator().validate(update)
+            return True
+        except Exception as e:
+            self.log(e)
             return False
-    validator = jsonschema.Draft4Validator(get_schema(), format_checker=jsonschema.draft4_format_checker)
-    try:
-        validator.validate(update)
-        return True
-    except Exception:
-        return False

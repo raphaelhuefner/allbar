@@ -1,4 +1,5 @@
 import configparser
+import json
 import sys
 import urllib.parse
 import urllib.request
@@ -17,11 +18,6 @@ class TimeTrackerStatusBarApp(rumps.App):
         self.datastore = None # inject with set_datastore() before calling run()
         self.previous_indicator = ''
         self.previous_menu_settings = []
-        self.accepted_actions = {
-            'get_url': self.get_url,
-            'open_url': self.open_url,
-            'post_url': self.post_url,
-        }
         self.logger = logger
 
     def log(self, *args):
@@ -46,36 +42,72 @@ class TimeTrackerStatusBarApp(rumps.App):
             self.previous_menu_settings = current_menu_settings
             self.menu.clear()
             for menu_setting in current_menu_settings:
-                title = menu_setting['title']
-                action = self.accepted_actions[menu_setting['action']]
-                menu_item = rumps.MenuItem(title, action)
-                menu_item.state = menu_setting['active']
-                menu_item.url = menu_setting['url']
-                if 'post_url' == menu_setting['action']:
-                    menu_item.prompt_title = menu_setting['prompt_title']
-                    menu_item.prompt_message = menu_setting['prompt_message']
-                self.menu.add(menu_item)
+                self.menu.add(self.make_menu_item(menu_setting))
             self.menu.add(rumps.MenuItem('Preferences', self.preferences))
             self.menu.add(rumps.MenuItem('Quit', rumps.quit_application))
 
-    def get_url(self, sender):
-        with urllib.request.urlopen(sender.url) as http_response:
-            self.log('got', http_response.getcode(), 'for GET', sender.url)
-            self.datastore.invalidate_cache()
+    def make_menu_item(self, settings):
+        title = settings['title']
+        if 'open' in settings:
+            menu_item = self.make_open_menu_item(title, settings)
+        if 'request' in settings:
+            menu_item = self.make_request_menu_item(title, settings)
+        menu_item.state = settings['active']
+        return menu_item
+
+    def make_open_menu_item(self, title, settings):
+        menu_item = rumps.MenuItem(title, self.open_url)
+        menu_item.open_url = settings['open']
+        return menu_item
 
     def open_url(self, sender):
-        webbrowser.open_new_tab(sender.url)
+        webbrowser.open_new_tab(sender.open_url)
 
-    def post_url(self, sender):
-        message = sender.prompt_message
-        title = sender.prompt_title
-        prompt_response = rumps.Window(message=message, title=title).run()
-        if prompt_response.clicked:
-            payload = urllib.parse.urlencode({'value':prompt_response.text})
-            request = urllib.request.Request(sender.url, data=payload.encode())
-            with urllib.request.urlopen(request) as http_response:
-                self.log('got', http_response.getcode(), 'for POST', sender.url)
-                self.datastore.invalidate_cache()
+    def make_request_menu_item(self, title, settings):
+        menu_item = rumps.MenuItem(title, self.send_request)
+        settings['request']['method'] = settings['request']['method'] if 'method' in settings['request'] else 'GET'
+        menu_item.request = settings['request']
+        if 'prompt' in settings:
+            menu_item.prompt = settings['prompt']
+        return menu_item
+
+    def send_request(self, sender):
+        prompt_response, prompt_varname = self.prompt_user(sender)
+        if prompt_response:
+            request_config = self.put_prompt_data_into_request(sender.request, prompt_response, prompt_varname)
+        else:
+            request_config = sender.request
+        # request_config['method'] = request_config['method'] if 'method' in request_config else 'GET'
+        request = urllib.request.Request(**request_config)
+        with urllib.request.urlopen(request) as http_response:
+            self.log('got {code} for {method} {url}'.format(code=http_response.getcode(), **request_config))
+            self.datastore.invalidate_cache()
+
+    def prompt_user(self, sender):
+        try:
+            prompt = sender.prompt
+        except Exception as e:
+            return None, None
+        message = prompt['message']
+        title = prompt['title']
+        response = rumps.Window(message=message, title=title).run()
+        if response.clicked:
+            return response.text, prompt['placeholder']
+        return None, None
+
+    def put_prompt_data_into_request(self, request_config, prompt_response, prompt_varname):
+        new_request = {'method': request_config['method']}
+        new_request['url'] = request_config['url'].replace(prompt_varname, urllib.parse.quote(prompt_response))
+        if 'headers' in request_config:
+            new_request['headers'] = {}
+            for key, value in request_config['headers'].items():
+                new_request['headers'][key] = request_config['headers'][key].replace(prompt_varname, urllib.parse.quote(prompt_response))
+            if 'Content-Type' in request_config['headers']:
+                if 'application/x-www-form-urlencoded' == request_config['headers']['Content-Type']:
+                    new_request['data'] = urllib.parse.urlencode({prompt_varname:prompt_response}).encode()
+                if 'application/json' == request_config['headers']['Content-Type']:
+                    new_request['data'] = json.dumps({prompt_varname:prompt_response}).encode()
+        return new_request
 
     def preferences(self, sender):
         self.config.show_ui()

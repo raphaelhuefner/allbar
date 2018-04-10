@@ -2,16 +2,18 @@ import contextlib
 import io
 import urllib.request
 
+mocked_requests = []
 mock_responses = {}
 
 def urlopen(url_or_request):
-    global mock_responses
+    global mocked_requests, mock_responses
     if isinstance(url_or_request, urllib.request.Request):
         url = url_or_request.get_full_url()
     elif isinstance(url_or_request, str):
         url = url_or_request
     else:
         raise ValueError('Do not know how to mock urllib.request.urlopen({req}).'.format(req=repr(url_or_request)))
+    mocked_requests.append(url_or_request)
     response = mock_responses[url] if url in mock_responses else HTTPResponse(404, b'')
     return contextlib.closing(response)
 

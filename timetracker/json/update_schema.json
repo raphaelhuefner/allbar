@@ -1,0 +1,92 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://rh.io/json-schema/timetracker/update.json",
+    "title": "Update Record",
+    "description": "macOS Status Bar Time Tracker Update Record.",
+    "type": "object",
+    "properties": {
+        "ttl": {
+            "title": "Time To Live",
+            "description": "The time this data is valid for in seconds.",
+            "type": "integer",
+            "minimum": 0
+        },
+        "indicators": {
+            "title": "Status Bar Indicator Strings",
+            "description": "A list of strings to show in the status bar. Rotated 1 per second.",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "string"
+            }
+        },
+        "menu": {
+            "title": "Menu Items",
+            "description": "The list of menu items to show. Without 'Preferences' nor 'Quit', which are hard-coded.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    }
+                },
+                "required": ["title", "active"],
+                "oneOf": [
+                    {
+                        "properties": {
+                            "open": {
+                                "type": "string",
+                                "format": "uri"
+                            }
+                        },
+                        "required": ["open"]
+                    },
+                    {
+                        "properties": {
+                            "request": {
+                                "type": "object",
+                                "properties": {
+                                    "method": {
+                                        "type": "string",
+                                        "default": "GET"
+                                    },
+                                    "url": {
+                                        "type": "string",
+                                        "format": "uri"
+                                    },
+                                    "headers": {
+                                        "type": "object",
+                                        "additionalProperties": {"type": "string"}
+                                    }
+                                },
+                                "required": ["url"]
+                            },
+                            "prompt": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    },
+                                    "placeholder": {
+                                        "type": "string",
+                                        "default": "prompt"
+                                    }
+                                },
+                                "required": ["title", "message", "placeholder"]
+                            }
+                        },
+                        "required": ["request"]
+                    }
+                ]
+            }
+        }
+    },
+    "required": ["ttl", "indicators", "menu"]
+}

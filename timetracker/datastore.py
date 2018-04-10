@@ -15,6 +15,7 @@ class TimeTrackerDataStore():
         self.invalidate_cache()
         self.update_url = None
         self.current_indicator_index = 0
+        self.validator = timetracker.update.Validator(logger)
         self.logger = logger
 
     def log(self, *args):
@@ -37,7 +38,7 @@ class TimeTrackerDataStore():
         self.cache_last_updated = datetime(1970, 1, 1)
 
     def is_new_data_valid(self, new_data):
-        return timetracker.update.is_valid(new_data)
+        return self.validator.is_valid(new_data)
 
     def update(self):
         if self.is_cache_valid():

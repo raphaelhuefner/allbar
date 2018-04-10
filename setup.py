@@ -17,4 +17,7 @@ setup(
     data_files=DATA_FILES,
     options={'py2app': PY2APP_OPTIONS},
     setup_requires=['py2app'],
+    package_data={
+        'timetracker': ['json/*.json']
+    }
 )

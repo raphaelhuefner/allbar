@@ -1,0 +1,55 @@
+{
+    "ttl": 8,
+    "indicators": ["a", "b"],
+    "menu": [
+        {
+            "title": "Menu Item 1",
+            "active": false,
+            "open": "https://under.testing/menu-item-1"
+        },
+        {
+            "title": "Menu Item 2",
+            "active": false,
+            "request": {
+                "method": "POST",
+                "url": "https://under.testing/menu-item-2?prompt=prompt_placeholder",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "X-Prompt": "prompt_placeholder"
+                }
+            },
+            "prompt": {
+                "title": "POST prompt title",
+                "message": "POST prompt message",
+                "placeholder": "prompt_placeholder"
+            }
+        },
+        {
+            "title": "Menu Item 3",
+            "active": false,
+            "request": {
+                "method": "POST",
+                "url": "https://under.testing/menu-item-3?prompt=prompt_placeholder",
+                "headers": {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-Prompt": "prompt_placeholder"
+                }
+            },
+            "prompt": {
+                "title": "POST prompt title",
+                "message": "POST prompt message",
+                "placeholder": "prompt_placeholder"
+            }
+        },
+        {
+            "title": "Menu Item 4",
+            "active": false,
+            "request": {
+                "method": "GET",
+                "url": "https://under.testing/menu-item-4",
+                "headers": {
+                }
+            }
+        }
+    ]
+}
