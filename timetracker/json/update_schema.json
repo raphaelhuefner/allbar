@@ -60,7 +60,19 @@
                                     },
                                     "headers": {
                                         "type": "object",
+                                        "patternProperties": {
+                                            "^[Cc]ontent-[Tt]ype$": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "application/json",
+                                                    "application/x-www-form-urlencoded"
+                                                ]
+                                            }
+                                        },
                                         "additionalProperties": {"type": "string"}
+                                    },
+                                    "body": {
+                                        "type": "object"
                                     }
                                 },
                                 "required": ["url"]

@@ -32,7 +32,7 @@ class TimeTrackerConfiguration():
             title = 'Time Tracker Preferences',
             cancel = True,
             default_text = url if url else '',
-            dimensions=(800, 40)
+            dimensions = (800, 40)
         )
         window.add_button('Quit')
         prompt_response = window.run()

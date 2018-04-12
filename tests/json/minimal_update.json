@@ -16,6 +16,26 @@
                 "headers": {
                     "Content-Type": "application/json",
                     "X-Prompt": "prompt_placeholder"
+                },
+                "body": {
+                    "no_iter": 3.1415,
+                    "obj": {
+                        "prop_0": "abc",
+                        "prop_1": "prompt_placeholder",
+                        "prop_2": {
+                            "prop_2_0": "xyz",
+                            "prop_2_1": [
+                                123,
+                                "prompt_placeholder"
+                            ],
+                            "prop_2_2": "prompt_placeholder"
+                        }
+                    },
+                    "arr": [
+                        "arr_elem_0",
+                        "prompt_placeholder",
+                        "arr_elem_2"
+                    ]
                 }
             },
             "prompt": {
@@ -33,6 +53,10 @@
                 "headers": {
                     "Content-Type": "application/x-www-form-urlencoded",
                     "X-Prompt": "prompt_placeholder"
+                },
+                "body": {
+                    "prop_0": "abc",
+                    "prop_1": "prompt_placeholder"
                 }
             },
             "prompt": {
@@ -45,8 +69,19 @@
             "title": "Menu Item 4",
             "active": false,
             "request": {
-                "method": "GET",
+                "method": "POST",
                 "url": "https://under.testing/menu-item-4",
+                "body": {
+                    "prop_0": "constant_data"
+                }
+            }
+        },
+        {
+            "title": "Menu Item 5",
+            "active": false,
+            "request": {
+                "method": "GET",
+                "url": "https://under.testing/menu-item-5",
                 "headers": {
                 }
             }

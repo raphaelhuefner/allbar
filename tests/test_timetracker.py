@@ -190,17 +190,12 @@ class TestTimeTracker():
         assert 'https://under.testing/menu-item-2?prompt=prompt_input_for_json' == request.get_full_url()
         assert 'POST' == request.get_method()
         assert [("Content-type", "application/json"), ("X-prompt", "prompt_input_for_json")] == request.header_items()
-        assert b'{"prompt_placeholder": "prompt_input_for_json"}' == request.data
+        assert request.data == b'{"no_iter": 3.1415, "obj": {"prop_0": "abc", "prop_1": "prompt_input_for_json", "prop_2": {"prop_2_0": "xyz", "prop_2_1": [123, "prompt_input_for_json"], "prop_2_2": "prompt_input_for_json"}}, "arr": ["arr_elem_0", "prompt_input_for_json", "arr_elem_2"]}'
 
         tests.mocks.urllib.mocked_requests = []
         rumps.Window.mock_response(rumps.Response(0, 'prompt_input_cancelled'))
         app.send_request(app.menu.mock_get_item(1))
-        assert 1 == len(tests.mocks.urllib.mocked_requests)
-        request = tests.mocks.urllib.mocked_requests[0]
-        assert 'https://under.testing/menu-item-2?prompt=prompt_placeholder' == request.get_full_url()
-        assert 'POST' == request.get_method()
-        assert [("Content-type", "application/json"), ("X-prompt", "prompt_placeholder")] == request.header_items()
-        assert None == request.data
+        assert 0 == len(tests.mocks.urllib.mocked_requests)
 
         tests.mocks.urllib.mocked_requests = []
         rumps.Window.mock_response(rumps.Response(1, 'prompt_input_for_form_encoded'))
@@ -210,14 +205,23 @@ class TestTimeTracker():
         assert 'https://under.testing/menu-item-3?prompt=prompt_input_for_form_encoded' == request.get_full_url()
         assert 'POST' == request.get_method()
         assert [("Content-type", "application/x-www-form-urlencoded"), ("X-prompt", "prompt_input_for_form_encoded")] == request.header_items()
-        assert b'prompt_placeholder=prompt_input_for_form_encoded' == request.data
+        assert request.data == b'prop_0=abc&prop_1=prompt_input_for_form_encoded'
 
         tests.mocks.urllib.mocked_requests = []
+        rumps.Window.mock_response(rumps.Response(1, 'prompt_input_for_form_encoded'))
         app.send_request(app.menu.mock_get_item(3))
         assert 1 == len(tests.mocks.urllib.mocked_requests)
         request = tests.mocks.urllib.mocked_requests[0]
-        print(request)
         assert 'https://under.testing/menu-item-4' == request.get_full_url()
+        assert 'POST' == request.get_method()
+        assert [("Content-type", "application/json")] == request.header_items()
+        assert request.data == b'{"prop_0": "constant_data"}'
+
+        tests.mocks.urllib.mocked_requests = []
+        app.send_request(app.menu.mock_get_item(4))
+        assert 1 == len(tests.mocks.urllib.mocked_requests)
+        request = tests.mocks.urllib.mocked_requests[0]
+        assert 'https://under.testing/menu-item-5' == request.get_full_url()
         assert 'GET' == request.get_method()
         assert [] == request.header_items()
         assert None == request.data

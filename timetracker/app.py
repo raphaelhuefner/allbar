@@ -72,42 +72,80 @@ class TimeTrackerStatusBarApp(rumps.App):
         return menu_item
 
     def send_request(self, sender):
-        prompt_response, prompt_varname = self.prompt_user(sender)
-        if prompt_response:
-            request_config = self.put_prompt_data_into_request(sender.request, prompt_response, prompt_varname)
+        if self.has_prompt(sender):
+            prompt_response = self.prompt_user(sender.prompt)
+            if prompt_response:
+                request = self.make_request_with_prompt_data(sender.request, prompt_response, sender.prompt['placeholder'])
+            else:
+                return
         else:
-            request_config = sender.request
-        # request_config['method'] = request_config['method'] if 'method' in request_config else 'GET'
-        request = urllib.request.Request(**request_config)
+            request = self.make_request(sender.request)
         with urllib.request.urlopen(request) as http_response:
-            self.log('got {code} for {method} {url}'.format(code=http_response.getcode(), **request_config))
+            self.log('got {code} for {method} {url}'.format(code=http_response.getcode(), method=request.method, url=request.full_url))
             self.datastore.invalidate_cache()
 
-    def prompt_user(self, sender):
+    def has_prompt(self, sender):
         try:
             prompt = sender.prompt
+            return True
         except Exception as e:
-            return None, None
-        message = prompt['message']
-        title = prompt['title']
-        response = rumps.Window(message=message, title=title).run()
-        if response.clicked:
-            return response.text, prompt['placeholder']
-        return None, None
+            return False
 
-    def put_prompt_data_into_request(self, request_config, prompt_response, prompt_varname):
-        new_request = {'method': request_config['method']}
-        new_request['url'] = request_config['url'].replace(prompt_varname, urllib.parse.quote(prompt_response))
+    def prompt_user(self, prompt):
+        response = rumps.Window(
+            message = prompt['message'],
+            title = prompt['title'],
+            cancel = True,
+        ).run()
+        return response.text if response.clicked else None
+
+    def make_request_with_prompt_data(self, request_config, prompt_response, prompt_placeholder):
+        url = request_config['url'].replace(prompt_placeholder, urllib.parse.quote(prompt_response))
+        request = urllib.request.Request(url, method=request_config['method'])
         if 'headers' in request_config:
-            new_request['headers'] = {}
             for key, value in request_config['headers'].items():
-                new_request['headers'][key] = request_config['headers'][key].replace(prompt_varname, urllib.parse.quote(prompt_response))
-            if 'Content-Type' in request_config['headers']:
-                if 'application/x-www-form-urlencoded' == request_config['headers']['Content-Type']:
-                    new_request['data'] = urllib.parse.urlencode({prompt_varname:prompt_response}).encode()
-                if 'application/json' == request_config['headers']['Content-Type']:
-                    new_request['data'] = json.dumps({prompt_varname:prompt_response}).encode()
-        return new_request
+                new_value = value.replace(prompt_placeholder, urllib.parse.quote(prompt_response))
+                request.add_header(key, new_value)
+        if 'body' in request_config:
+            body = self.put_prompt_data_into_body(request_config['body'], prompt_response, prompt_placeholder)
+            self.encode_body(request, body)
+        return request
+
+    def put_prompt_data_into_body(self, body, prompt_response, prompt_placeholder):
+        if isinstance(body, dict):
+            new_body = {}
+            for i in body:
+                new_body[i] = self.put_prompt_data_into_body(body[i], prompt_response, prompt_placeholder)
+            return new_body
+        elif isinstance(body, list):
+            new_body = []
+            for i in body:
+                new_body.append(self.put_prompt_data_into_body(i, prompt_response, prompt_placeholder))
+            return new_body
+        elif isinstance(body, str):
+            return body.replace(prompt_placeholder, prompt_response)
+        else:
+            return body
+
+    def make_request(self, request_config):
+        url = request_config['url']
+        headers = request_config['headers'] if 'headers' in request_config else {}
+        request = urllib.request.Request(url, headers=headers, method=request_config['method'])
+        if 'body' in request_config:
+            self.encode_body(request, request_config['body'])
+        return request
+
+    def encode_body(self, request, body):
+        content_type = self.ensure_content_type(request)
+        if 'application/x-www-form-urlencoded' == content_type:
+            request.data = urllib.parse.urlencode(body).encode()
+        elif 'application/json' == content_type:
+            request.data = json.dumps(body).encode()
+
+    def ensure_content_type(self, request):
+        if not request.has_header('Content-type'):
+            request.add_header('Content-type', 'application/json')
+        return request.get_header('Content-type')
 
     def preferences(self, sender):
         self.config.show_ui()
