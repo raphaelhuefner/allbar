@@ -2,10 +2,10 @@ from datetime import datetime
 import json
 import urllib.request
 
-import timetracker.update
-import timetracker.utility
+import productivityreminder.update
+import productivityreminder.utility
 
-class TimeTrackerDataStore():
+class ProductivityReminderDataStore():
     def __init__(self, logger=None):
         self.cache = {
             'ttl': 1,
@@ -15,7 +15,7 @@ class TimeTrackerDataStore():
         self.invalidate_cache()
         self.update_url = None
         self.current_indicator_index = 0
-        self.validator = timetracker.update.Validator(logger)
+        self.validator = productivityreminder.update.Validator(logger)
         self.logger = logger
 
     def log(self, *args):
@@ -43,7 +43,7 @@ class TimeTrackerDataStore():
     def update(self):
         if self.is_cache_valid():
             return
-        if not timetracker.utility.is_url_valid(self.update_url):
+        if not productivityreminder.utility.is_url_valid(self.update_url):
             return
         try:
             with urllib.request.urlopen(self.update_url) as http_response:

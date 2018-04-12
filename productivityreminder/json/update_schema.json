@@ -1,8 +1,8 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "http://rh.io/json-schema/timetracker/update.json",
+    "id": "http://rh.io/json-schema/productivityreminder/update.json",
     "title": "Update Record",
-    "description": "macOS Status Bar Time Tracker Update Record.",
+    "description": "macOS Status Bar Productivity Reminder Update Record.",
     "type": "object",
     "properties": {
         "ttl": {

@@ -5,16 +5,16 @@ import webbrowser
 
 import pytest
 
-from timetracker.app import TimeTrackerStatusBarApp
-from timetracker.configuration import TimeTrackerConfiguration
-from timetracker.datastore import TimeTrackerDataStore
-import timetracker.update
-from timetracker.utility import is_url_valid
+from productivityreminder.app import ProductivityReminderStatusBarApp
+from productivityreminder.configuration import ProductivityReminderConfiguration
+from productivityreminder.datastore import ProductivityReminderDataStore
+import productivityreminder.update
+from productivityreminder.utility import is_url_valid
 
 import tests.mocks.rumps as rumps
 import tests.mocks.urllib
 
-class TestTimeTracker():
+class TestProductivityReminder():
 
     @pytest.fixture(scope="class")
     def app(self):
@@ -23,12 +23,12 @@ class TestTimeTracker():
         logger = noop
         # logger = print
 
-        app = TimeTrackerStatusBarApp(logger=logger)
+        app = ProductivityReminderStatusBarApp(logger=logger)
 
-        config = TimeTrackerConfiguration(app, logger=logger)
+        config = ProductivityReminderConfiguration(app, logger=logger)
         app.set_config(config)
 
-        store = TimeTrackerDataStore(logger=logger)
+        store = ProductivityReminderDataStore(logger=logger)
         app.set_datastore(store)
 
         return app
@@ -61,7 +61,7 @@ class TestTimeTracker():
     def test_read_existing_config_file(self, app):
         app.mock_files({
             app.config.file_name: """
-                [timetracker]
+                [productivityreminder]
                 update_url=https://under.testing/update
             """
         })
@@ -82,7 +82,7 @@ class TestTimeTracker():
         app.mock_files({})
         rumps.Window.mock_response(rumps.Response(1, 'https://under.testing/update'))
         app.config.show_ui()
-        assert app.get_mock_file(app.config.file_name) == '[timetracker]\nupdate_url = https://under.testing/update\n\n'
+        assert app.get_mock_file(app.config.file_name) == '[productivityreminder]\nupdate_url = https://under.testing/update\n\n'
 
     def test_config_ui_invalid_udate_url(self, app):
         app.mock_files({})
@@ -106,13 +106,13 @@ class TestTimeTracker():
             return f.read()
 
     def test_update_validator_accepts_schematic_json_string(self):
-        assert timetracker.update.Validator().is_valid(self.get_minimal_update_json())
+        assert productivityreminder.update.Validator().is_valid(self.get_minimal_update_json())
 
     def test_update_validator_rejects_non_json_strings(self):
-        assert not timetracker.update.Validator().is_valid("Hello World!")
+        assert not productivityreminder.update.Validator().is_valid("Hello World!")
 
     def test_update_validator_rejects_unschematic_updates(self):
-        assert not timetracker.update.Validator().is_valid({"ttl":"invalid"})
+        assert not productivityreminder.update.Validator().is_valid({"ttl":"invalid"})
 
     def test_datastore_corrupt_data_does_not_update(self, monkeypatch, app):
         monkeypatch.setattr(urllib.request, 'urlopen', tests.mocks.urllib.urlopen)
@@ -144,7 +144,7 @@ class TestTimeTracker():
     def test_app_refreshes_with_new_data(self, monkeypatch, app):
         app.mock_files({
             app.config.file_name: """
-                [timetracker]
+                [productivityreminder]
                 update_url=https://under.testing/update
             """
         })
@@ -163,7 +163,7 @@ class TestTimeTracker():
     def test_app_menu_callbacks(self, monkeypatch, app):
         app.mock_files({
             app.config.file_name: """
-                [timetracker]
+                [productivityreminder]
                 update_url=https://under.testing/update
             """
         })

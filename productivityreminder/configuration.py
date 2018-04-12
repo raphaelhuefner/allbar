@@ -6,10 +6,10 @@ if ('pytest' not in sys.modules):
 else:
     import tests.mocks.rumps as rumps
 
-import timetracker.utility
+import productivityreminder.utility
 
-class TimeTrackerConfiguration():
-    def __init__(self, app, file_name='timetracker.ini', logger=None):
+class ProductivityReminderConfiguration():
+    def __init__(self, app, file_name='productivityreminder.ini', logger=None):
         self.app = app
         self.file_name = file_name
         self.logger = logger
@@ -40,7 +40,7 @@ class TimeTrackerConfiguration():
             self.is_cancelled = True
         if 1 is prompt_response.clicked: # "OK" button
             url = prompt_response.text.strip()
-            if timetracker.utility.is_url_valid(url):
+            if productivityreminder.utility.is_url_valid(url):
                 self.write(url)
                 return url
             else:
@@ -59,7 +59,7 @@ class TimeTrackerConfiguration():
             with self.app.open(self.file_name, 'r') as configfile:
                 config = configparser.ConfigParser()
                 config.read_file(configfile)
-                self.update_url = config['timetracker']['update_url']
+                self.update_url = config['productivityreminder']['update_url']
                 return self.update_url
         except Exception as e:
             self.log(e)
@@ -67,7 +67,7 @@ class TimeTrackerConfiguration():
 
     def write(self, url):
         config = configparser.ConfigParser()
-        config['timetracker'] = {
+        config['productivityreminder'] = {
             'update_url': url
         }
         with self.app.open(self.file_name, 'w') as configfile:
