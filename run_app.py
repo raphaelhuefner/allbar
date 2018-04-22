@@ -1,7 +1,7 @@
 
-import productivityreminder.app
-import productivityreminder.configuration
-import productivityreminder.datastore
+import allbar.app
+import allbar.configuration
+import allbar.datastore
 
 class Logging():
     def __init__(self):
@@ -19,15 +19,15 @@ class Logging():
 logger = None
 
 
-app = productivityreminder.app.ProductivityReminderStatusBarApp(logger=logger)
+app = allbar.app.AllBarStatusBarApp(logger=logger)
 
-config = productivityreminder.configuration.ProductivityReminderConfiguration(app, logger=logger)
+config = allbar.configuration.AllBarConfiguration(app, logger=logger)
 app.set_config(config)
 
-store = productivityreminder.datastore.ProductivityReminderDataStore(logger=logger)
+store = allbar.datastore.AllBarDataStore(logger=logger)
 app.set_datastore(store)
 
-# with app.open('productivityreminder.log', 'w') as logfile:
+# with app.open('allbar.log', 'w') as logfile:
 #     logging.set_logfile(logfile)
 #     app.run(debug=True)
 

@@ -6,10 +6,10 @@ if ('pytest' not in sys.modules):
 else:
     import tests.mocks.rumps as rumps
 
-import productivityreminder.utility
+import allbar.utility
 
-class ProductivityReminderConfiguration():
-    def __init__(self, app, file_name='productivityreminder.ini', logger=None):
+class AllBarConfiguration():
+    def __init__(self, app, file_name='allbar.ini', logger=None):
         self.app = app
         self.file_name = file_name
         self.logger = logger
@@ -29,7 +29,7 @@ class ProductivityReminderConfiguration():
         ))
         window = rumps.Window(
             message = explanation,
-            title = 'Time Tracker Preferences',
+            title = 'AllBar Preferences',
             cancel = True,
             default_text = url if url else '',
             dimensions = (800, 40)
@@ -40,7 +40,7 @@ class ProductivityReminderConfiguration():
             self.is_cancelled = True
         if 1 is prompt_response.clicked: # "OK" button
             url = prompt_response.text.strip()
-            if productivityreminder.utility.is_url_valid(url):
+            if allbar.utility.is_url_valid(url):
                 self.write(url)
                 return url
             else:
@@ -59,7 +59,7 @@ class ProductivityReminderConfiguration():
             with self.app.open(self.file_name, 'r') as configfile:
                 config = configparser.ConfigParser()
                 config.read_file(configfile)
-                self.update_url = config['productivityreminder']['update_url']
+                self.update_url = config['allbar']['update_url']
                 return self.update_url
         except Exception as e:
             self.log(e)
@@ -67,7 +67,7 @@ class ProductivityReminderConfiguration():
 
     def write(self, url):
         config = configparser.ConfigParser()
-        config['productivityreminder'] = {
+        config['allbar'] = {
             'update_url': url
         }
         with self.app.open(self.file_name, 'w') as configfile:

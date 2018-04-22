@@ -10,9 +10,9 @@ if ('pytest' not in sys.modules):
 else:
     import tests.mocks.rumps as rumps
 
-class ProductivityReminderStatusBarApp(rumps.App):
+class AllBarStatusBarApp(rumps.App):
     def __init__(self, logger=None):
-        super(ProductivityReminderStatusBarApp, self).__init__("Productivity Reminder", "0:00")
+        super(AllBarStatusBarApp, self).__init__("AllBar", "x:xx")
         self.menu = rumps.MenuItem('Preferences', self.preferences)
         self.config = None # inject with set_config() before calling run()
         self.datastore = None # inject with set_datastore() before calling run()

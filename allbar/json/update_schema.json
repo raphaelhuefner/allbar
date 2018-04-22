@@ -1,8 +1,8 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "http://rh.io/json-schema/productivityreminder/update.json",
+    "id": "http://rh.io/json-schema/allbar-update-0.0.1.json",
     "title": "Update Record",
-    "description": "macOS Status Bar Productivity Reminder Update Record.",
+    "description": "Update Record for the AllBar macOS Status Bar Multi Tool.",
     "type": "object",
     "properties": {
         "ttl": {

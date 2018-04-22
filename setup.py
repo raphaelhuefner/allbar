@@ -11,13 +11,12 @@ PY2APP_OPTIONS = {
 }
 
 setup(
-    # name='MacOS Status Bar Productivity Reminder', # use with pypi
-    name='Productivity Reminder', # use with py2app
+    name='AllBar',
     app=APP,
     data_files=DATA_FILES,
     options={'py2app': PY2APP_OPTIONS},
     setup_requires=['py2app'],
     package_data={
-        'productivityreminder': ['json/*.json']
+        'allbar': ['json/*.json']
     }
 )

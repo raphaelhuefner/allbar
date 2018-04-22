@@ -5,16 +5,16 @@ import webbrowser
 
 import pytest
 
-from productivityreminder.app import ProductivityReminderStatusBarApp
-from productivityreminder.configuration import ProductivityReminderConfiguration
-from productivityreminder.datastore import ProductivityReminderDataStore
-import productivityreminder.update
-from productivityreminder.utility import is_url_valid
+from allbar.app import AllBarStatusBarApp
+from allbar.configuration import AllBarConfiguration
+from allbar.datastore import AllBarDataStore
+import allbar.update
+from allbar.utility import is_url_valid
 
 import tests.mocks.rumps as rumps
 import tests.mocks.urllib
 
-class TestProductivityReminder():
+class TestAllBar():
 
     @pytest.fixture(scope="class")
     def app(self):
@@ -23,12 +23,12 @@ class TestProductivityReminder():
         logger = noop
         # logger = print
 
-        app = ProductivityReminderStatusBarApp(logger=logger)
+        app = AllBarStatusBarApp(logger=logger)
 
-        config = ProductivityReminderConfiguration(app, logger=logger)
+        config = AllBarConfiguration(app, logger=logger)
         app.set_config(config)
 
-        store = ProductivityReminderDataStore(logger=logger)
+        store = AllBarDataStore(logger=logger)
         app.set_datastore(store)
 
         return app
@@ -61,7 +61,7 @@ class TestProductivityReminder():
     def test_read_existing_config_file(self, app):
         app.mock_files({
             app.config.file_name: """
-                [productivityreminder]
+                [allbar]
                 update_url=https://under.testing/update
             """
         })
@@ -82,7 +82,7 @@ class TestProductivityReminder():
         app.mock_files({})
         rumps.Window.mock_response(rumps.Response(1, 'https://under.testing/update'))
         app.config.show_ui()
-        assert app.get_mock_file(app.config.file_name) == '[productivityreminder]\nupdate_url = https://under.testing/update\n\n'
+        assert app.get_mock_file(app.config.file_name) == '[allbar]\nupdate_url = https://under.testing/update\n\n'
 
     def test_config_ui_invalid_udate_url(self, app):
         app.mock_files({})
@@ -106,13 +106,13 @@ class TestProductivityReminder():
             return f.read()
 
     def test_update_validator_accepts_schematic_json_string(self):
-        assert productivityreminder.update.Validator().is_valid(self.get_minimal_update_json())
+        assert allbar.update.Validator().is_valid(self.get_minimal_update_json())
 
     def test_update_validator_rejects_non_json_strings(self):
-        assert not productivityreminder.update.Validator().is_valid("Hello World!")
+        assert not allbar.update.Validator().is_valid("Hello World!")
 
     def test_update_validator_rejects_unschematic_updates(self):
-        assert not productivityreminder.update.Validator().is_valid({"ttl":"invalid"})
+        assert not allbar.update.Validator().is_valid({"ttl":"invalid"})
 
     def test_datastore_corrupt_data_does_not_update(self, monkeypatch, app):
         monkeypatch.setattr(urllib.request, 'urlopen', tests.mocks.urllib.urlopen)
@@ -144,7 +144,7 @@ class TestProductivityReminder():
     def test_app_refreshes_with_new_data(self, monkeypatch, app):
         app.mock_files({
             app.config.file_name: """
-                [productivityreminder]
+                [allbar]
                 update_url=https://under.testing/update
             """
         })
@@ -163,7 +163,7 @@ class TestProductivityReminder():
     def test_app_menu_callbacks(self, monkeypatch, app):
         app.mock_files({
             app.config.file_name: """
-                [productivityreminder]
+                [allbar]
                 update_url=https://under.testing/update
             """
         })
