@@ -5,7 +5,7 @@ import webbrowser
 
 import pytest
 
-from allbar.app import AllBarStatusBarApp
+from allbar.app import AllBarApp
 from allbar.configuration import AllBarConfiguration
 from allbar.datastore import AllBarDataStore
 import allbar.update
@@ -23,7 +23,7 @@ class TestAllBar():
         logger = noop
         # logger = print
 
-        app = AllBarStatusBarApp(logger=logger)
+        app = AllBarApp(logger=logger)
 
         config = AllBarConfiguration(app, logger=logger)
         app.set_config(config)

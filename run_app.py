@@ -19,7 +19,7 @@ class Logging():
 logger = None
 
 
-app = allbar.app.AllBarStatusBarApp(logger=logger)
+app = allbar.app.AllBarApp(logger=logger)
 
 config = allbar.configuration.AllBarConfiguration(app, logger=logger)
 app.set_config(config)
