@@ -53,22 +53,7 @@
                                         "pattern": "^data:image/png;base64,"
                                     },
                                     "title": {
-                                        "type": "null"
-                                    }
-                                },
-                                "required": ["icon", "title"]
-                            }
-                        },
-                        {
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "icon": {
-                                        "type": "string",
-                                        "pattern": "^data:image/png;base64,"
-                                    },
-                                    "title": {
-                                        "type": "string"
+                                        "type": ["string", "null"]
                                     }
                                 },
                                 "required": ["icon", "title"]
@@ -84,75 +69,97 @@
             "type": "array",
             "items": {
                 "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "string"
-                    },
-                    "active": {
-                        "type": "boolean"
-                    }
-                },
-                "required": ["title", "active"],
                 "oneOf": [
                     {
                         "properties": {
-                            "open": {
-                                "type": "string",
-                                "format": "uri"
+                            "separator": {
+                                "type": "boolean",
+                                "enum": [true]
                             }
                         },
-                        "required": ["open"]
+                        "required": ["separator"]
                     },
                     {
                         "properties": {
-                            "request": {
-                                "type": "object",
-                                "properties": {
-                                    "method": {
-                                        "type": "string",
-                                        "default": "GET"
-                                    },
-                                    "url": {
-                                        "type": "string",
-                                        "format": "uri"
-                                    },
-                                    "headers": {
-                                        "type": "object",
-                                        "patternProperties": {
-                                            "^[Cc]ontent-[Tt]ype$": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "application/json",
-                                                    "application/x-www-form-urlencoded"
-                                                ]
-                                            }
-                                        },
-                                        "additionalProperties": {"type": "string"}
-                                    },
-                                    "body": {
-                                        "type": "object"
-                                    }
-                                },
-                                "required": ["url"]
+                            "title": {
+                                "type": "string"
                             },
-                            "prompt": {
-                                "type": "object",
-                                "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "message": {
-                                        "type": "string"
-                                    },
-                                    "placeholder": {
-                                        "type": "string",
-                                        "default": "prompt"
-                                    }
-                                },
-                                "required": ["title", "message", "placeholder"]
+                            "active": {
+                                "type": "boolean"
                             }
                         },
-                        "required": ["request"]
+                        "required": ["title", "active"],
+                        "oneOf": [
+                            {
+                                "properties": {
+                                    "disabled": {
+                                        "type": "boolean",
+                                        "enum": [true]
+                                    }
+                                },
+                                "required": ["disabled"]
+                            },
+                            {
+                                "properties": {
+                                    "open": {
+                                        "type": "string",
+                                        "format": "uri"
+                                    }
+                                },
+                                "required": ["open"]
+                            },
+                            {
+                                "properties": {
+                                    "request": {
+                                        "type": "object",
+                                        "properties": {
+                                            "method": {
+                                                "type": "string",
+                                                "default": "GET"
+                                            },
+                                            "url": {
+                                                "type": "string",
+                                                "format": "uri"
+                                            },
+                                            "headers": {
+                                                "type": "object",
+                                                "patternProperties": {
+                                                    "^[Cc]ontent-[Tt]ype$": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "application/json",
+                                                            "application/x-www-form-urlencoded"
+                                                        ]
+                                                    }
+                                                },
+                                                "additionalProperties": {"type": "string"}
+                                            },
+                                            "body": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "required": ["url"]
+                                    },
+                                    "prompt": {
+                                        "type": "object",
+                                        "properties": {
+                                            "title": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "placeholder": {
+                                                "type": "string",
+                                                "default": "prompt"
+                                            }
+                                        },
+                                        "required": ["title", "message", "placeholder"]
+                                    }
+                                },
+                                "required": ["request"]
+                            }
+                        ]
                     }
                 ]
             }

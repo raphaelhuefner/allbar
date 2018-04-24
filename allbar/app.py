@@ -48,16 +48,25 @@ class AllBarApp(rumps.App):
             self.menu.clear()
             for menu_setting in current_menu_settings:
                 self.menu.add(self.make_menu_item(menu_setting))
+            self.menu.add(None)
             self.menu.add(rumps.MenuItem('Preferences', self.preferences))
             self.menu.add(rumps.MenuItem('Quit', rumps.quit_application))
 
     def make_menu_item(self, settings):
+        if 'separator' in settings:
+            return None
         title = settings['title']
+        if 'disabled' in settings:
+            menu_item = self.make_disabled_menu_item(title, settings)
         if 'open' in settings:
             menu_item = self.make_open_menu_item(title, settings)
         if 'request' in settings:
             menu_item = self.make_request_menu_item(title, settings)
         menu_item.state = settings['active']
+        return menu_item
+
+    def make_disabled_menu_item(self, title, settings):
+        menu_item = rumps.MenuItem(title, None)
         return menu_item
 
     def make_open_menu_item(self, title, settings):
