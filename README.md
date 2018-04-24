@@ -1,7 +1,8 @@
 # AllBar
 
-### The macOS Status Bar Multi Tool
+### The AllBar macOS Status Bar Multi Tool
 
+![screenshot](https://raw.githubusercontent.com/raphaelhuefner/allbar/master/docs/img/AllBar-Screenshot.jpg)
 
 #### Description
 A customizable macOS status bar thingamabob for anything you have to keep in mind (and in view!) while you work on your computer, like:
