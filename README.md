@@ -26,8 +26,12 @@ Also comes with a customizable pull down menu to trigger simple related actions,
 Both the status bar ~~thingamabob~~ indicator and the pull down menu get configured and updated by the same simple JSON payload, which can be provided by any (local development) web server under your control, or even just a local JSON file. (Remember to overwrite that JSON file when you want to change the indicator.)
 
 
-#### (ReadMe Table of Contents)
-
+#### Table of Contents
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [Credits](#credits)
+- [License](#license)
 
 #### Installation
 1. Make sure you can run `python3` on your command line.
