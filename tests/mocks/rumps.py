@@ -39,9 +39,10 @@ def mock_file_context(stringio, pre_closing_callback, *callback_args):
 class App():
     _files = {}
 
-    def __init__(self, name, title=None):
+    def __init__(self, name, title=None, icon=None):
         self._menu = Menu()
         self._title = title
+        self._icon = icon
         pass
 
     @property
@@ -59,6 +60,14 @@ class App():
     @title.setter
     def title(self, title):
         self._title = title
+
+    @property
+    def icon(self):
+        return self._icon
+
+    @icon.setter
+    def icon(self, icon_path):
+        self._icon = icon_path
 
     @classmethod
     def mock_files(cls, files):

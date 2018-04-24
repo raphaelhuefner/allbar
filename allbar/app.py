@@ -6,7 +6,7 @@ import urllib.request
 import webbrowser
 
 if ('pytest' not in sys.modules):
-    import rumps as rumps
+    import extrarumps as rumps
 else:
     import tests.mocks.rumps as rumps
 
@@ -34,7 +34,12 @@ class AllBarApp(rumps.App):
         current_indicator = self.datastore.get_current_indicator()
         if self.previous_indicator != current_indicator:
             self.previous_indicator = current_indicator
-            self.title = current_indicator
+            if isinstance(current_indicator, str):
+                self.icon = None
+                self.title = current_indicator
+            else:
+                self.icon = current_indicator['icon']
+                self.title = current_indicator['title']
 
     def update_menu(self):
         current_menu_settings = self.datastore.get_current_menu_settings()

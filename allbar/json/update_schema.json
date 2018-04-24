@@ -12,13 +12,71 @@
             "minimum": 0
         },
         "indicators": {
-            "title": "Status Bar Indicator Strings",
-            "description": "A list of strings to show in the status bar. Rotated 1 per second.",
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "type": "string"
-            }
+            "oneOf": [
+                {
+                    "title": "Status Bar Indicator Strings",
+                    "description": "A list of strings to show in the status bar. Rotated one per second.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                {
+                    "title": "Status Bar Indicator Icon/Title Combos",
+                    "description": "A list of icon/title combos to show in the status bar. Rotated one per second.",
+                    "type": "array",
+                    "minItems": 1,
+                    "oneOf": [
+                        {
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "icon": {
+                                        "type": "null"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
+                                },
+                                "required": ["icon", "title"]
+                            }
+                        },
+                        {
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "icon": {
+                                        "type": "string",
+                                        "pattern": "^data:image/png;base64,"
+                                    },
+                                    "title": {
+                                        "type": "null"
+                                    }
+                                },
+                                "required": ["icon", "title"]
+                            }
+                        },
+                        {
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "icon": {
+                                        "type": "string",
+                                        "pattern": "^data:image/png;base64,"
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": ["icon", "title"]
+                            }
+                        }
+                    ]
+                }
+            ]
         },
         "menu": {
             "title": "Menu Items",
