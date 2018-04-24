@@ -23,9 +23,16 @@ class AllBarDataStore():
             self.logger(*args)
 
     def set_update_url(self, update_url):
+        if update_url is None:
+            self.load_demo_mode()
         if self.update_url is not update_url:
             self.invalidate_cache()
         self.update_url = update_url
+
+    def load_demo_mode(self):
+        demo_mode = allbar.utility.load_packaged_json_file('demo_mode.json')
+        self.cache = json.loads(demo_mode)
+        self.cache_last_updated = datetime.now()
 
     def is_cache_valid(self):
         if 'ttl' in self.cache:

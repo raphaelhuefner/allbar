@@ -1,0 +1,43 @@
+{
+    "ttl": 999999999,
+    "indicators": [
+        {
+            "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAADp0lEQVQ4y3WVT28URxDFf1Xd7ZnFWmMcyeKPkFgFI4gSKQeiXHLx3Wcu8YFvYJs7Yp0vgFG+AIdwCGffyTm5RBDFluNoTWJbUSQSLwvs7E53Vw6zjm0kShqpRzV6817V6yphEmYmrK+LdLu59+xueeXy+TsqumTILcyuASCyB7ZlJptB6+9l4duRdbvKgwcmIgYgDVhXRboZYLR9b9mJfePaRQcB6oSNUoM35WDKgUEajHqo3fcLG09OY4iZyTF6vb224WfLFapIrGJEMEDBtNEhGchmSCi9p/TEo+pRuPlw9Vilsr4uAPXO2oafa63EoypanaI6PBAAByLNgxMh+IBPoxjjURX9XGul3l7bAGB9XQQg/rb6tWu3vov9Kqqir/tZRaA9o+R8XGNQhZSM/lGmPaNMFZJzJPvZ0qfBcNkvbDyR3rO75dXLF351he9YTHH/Ze1/+qHCBeHLxZL5S44UG35m8POPFb+/iFy57vjiq5LgJbrC+zSKvT8P//1Er1yeu+PaRSdWMYL5/ZeR0RDeHhl/HURUTthVVeaPnUgo4GA3MXidUYevqxhdu+g0zhBbOnYOQGchMDMnzF1SrnY8OTfscoZWS7nxeQDg488852eVnECa5iGiS1Lv3HvhC/dprOoE4lShGhqiUBRCyhNvcSK7GhpFKag272DJl8HFUfrFY3YtjxONPRomRUsar6VJbzlpDMC5aSFnMJNjYZrHCcyued4Ls4wlAeQM2OlI6bhCGRE9k1NE9nTK0WSV8WCbXPcRdSeUzv4RUUeu+4wH29AAZp1yILKnYFuEBlBQzCI5vkP4AL2GOzm+wywik0o1GLalZnlz0mMxwBUXiaN9DDtbuFNnw4ijfVxxsfnKjmdC3tSDw/7TNBj1fBk8OcZQzgOR8Zse4goQd4qaQ1zB+E0PiIRyHnKMvgw+DUa9g8P+U+0sPq5Qu0/pJ9bQXM7cJla7VP3n5DT8Hy+nIVX/ObHapTx/GxFtLmbpQfV+Z/FxJdbtqnS7ud5Z2/AXWivx1TAiiuXaj9/ukuu/QaYmksdomGdq+jqiIWIZ/1HLx1fDR+Hmw1XrdvXs+NpZ2/Az5QpVTRzlKOosp0otVdooLrO6MltO4gv1lIH4unoUbpwaXyJiZl0FCDcerqbBcDmNUs+3g3fTGsK5lgvFrIRiVsK5lnPTGnw7+DRKvTQYLp+AdVVETD68AubuqNiSYbcwJiuAPZAtM9k8OPznaWfxcfX+CvgPg+HyK1O51KEAAAAASUVORK5CYII=",
+            "title": "All:Bar"
+        },
+        {
+            "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAADhUlEQVQ4y32VMW9URxDHfzO7e+8dxmCMZBFbUXwhIBwpRSSk1O5du4kLvoHt9IjnfAEO5QtQhAJq9/QpURI7DtJZCjhRJBIuR7h393Z3UryzA4hkpJV2tKP/zn/mrxlhZmYm7O2JVFUePL5Vrixf3FTRDUPWMFsFQOQY7MBM9oM2D+XaNxOrKuXOHRMRA5AWrFKRKgNMDr/acmJfu/mihwBNwiapxSscBAcGaTQZoHbbX+s/eBNDzExO0ZvD3b5fKLeZRGIdI2CAgmnLQzKQAfGl9xSe+LK+F27c3TllqeztCUBztNv3i93t+LKOcRwj4IEAOBBpDw4IZvhmHGN8WUe/2N1uDnf7AOztiQDEn3e+dPPdb+OwjogodprR22YGqu2Z+Tknsl8ofRqNt/y1/gMZPL5Vfrh86UdX+F6cpAjm/w9sOjV++n5KjMbaZwXdrkTteJ8mcfDLyZ+f+pXlxU13PvTS6xTjbyc+/jpAQok1E/zKx/grH0BKgOAcDI4afviuAUBF+PyLwsc6Rn+h6K0sX9z0IraBCGbZ3OJlZO48IoKZoUUB2dryWduhUEjrZugUMtMJrWRENzzIGk0CyyplgeuW7bMI5NxynbkpwurVgCqkaHx0NZATmJjSJEDWPGareZoAlJRn0rRZ5c4yODMRuHq9A7MPcjZE0DxNYLbq3402ywinKnm/NY1hZogYIm8LQhE51o4DyIgyHR2SmiGIO6P7Tr9RdVgcMh0dQguYteNA5FjBDggtoKCYRXJ83Wb5Xv20pcjxNWYRoQVsMexAzfL+LFAMcMUV4vQZdlrHN7Oc3Q0jTp/hiittlJ3OhLyvz0+Gj9JoMvBl8OQYQ7kEFpm+GiCuaKmf1dghrmD6agAWCeUS5Bh9GXwaTQbPT4aPtLd+v0btNqWf9UVzeeEmsX5KPXxCTuMzvJzG1MMnxPop5cWbiGgGoPSgeru3fr8WqyqVqsrN0W7fX+puxxfjiCiWGz/9+ym5+R2kM6M8RcMSnblPEA0Ry/jLXR9fjO+FG3d3rKr07fF1tNv3F8pt6oY4yVHUWU61Wqq1ZVxmdWW2nMQX6ikD8a/6Xrj+xvgSETOrFCBcv7uTRuOtNEkDPx+8m9MQznVdKBYkFAsSznWdm9Pg54NPkzRIo/HWv2CViojJf6+AxU0V2zBsDWO2AjgGOTCT/ecnfzzqrd+v310B/wD7Yt7JeNYlEwAAAABJRU5ErkJggg==",
+            "title": "All Bar"
+        }
+    ],
+    "menu": [
+        {
+            "title": "Demo Mode",
+            "active": true,
+            "disabled": true
+        },
+        {
+            "title": "Not Configured",
+            "active": true,
+            "disabled": true
+        },
+        {
+            "title": "README",
+            "active": false,
+            "open": "https://github.com/raphaelhuefner/allbar"
+        },
+        {
+            "separator": true
+        },
+        {
+            "title": "Configure me! Click",
+            "active": false,
+            "disabled": true
+        },
+        {
+            "title": "'Preferences' below!",
+            "active": false,
+            "disabled": true
+        }
+    ]
+}

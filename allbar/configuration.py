@@ -76,4 +76,5 @@ class AllBarConfiguration():
 
     def get_update_url(self):
         url = self.read()
-        return url if url else self.show_ui() if not self.is_cancelled else None
+        # return url if url else self.show_ui() if not self.is_cancelled else None
+        return url if url else None

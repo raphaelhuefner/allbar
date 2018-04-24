@@ -1,8 +1,8 @@
 import json
-import os.path
 
 import jsonschema
-import modulegraph.zipio
+
+import allbar.utility
 
 class Validator():
     def __init__(self, logger=None):
@@ -16,9 +16,7 @@ class Validator():
 
     def get_schema_json(self):
         if not self._schema_json:
-            file_name = os.path.join(os.path.dirname(__file__), 'json/update_schema.json')
-            with modulegraph.zipio.open(file_name) as f:
-                self._schema_json = f.read()
+            self._schema_json = allbar.utility.load_packaged_json_file('update_schema.json')
         return self._schema_json
 
     def get_schema(self):
