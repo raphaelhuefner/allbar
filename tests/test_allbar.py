@@ -9,7 +9,7 @@ from allbar.app import AllBarApp
 from allbar.configuration import AllBarConfiguration
 from allbar.datastore import AllBarDataStore
 import allbar.update
-from allbar.utility import is_url_valid
+import allbar.utility
 
 import tests.mocks.rumps as rumps
 import tests.mocks.urllib
@@ -38,14 +38,14 @@ class TestAllBar():
         assert 'pytest' in sys.modules
 
     def test_url_validation(self):
-        assert not is_url_valid('http')
-        assert not is_url_valid('https')
-        assert not is_url_valid('https://')
-        assert not is_url_valid('Hello World!')
-        assert is_url_valid('http://google.com')
-        assert is_url_valid('https://google.com')
-        assert is_url_valid('file://localhost/Users/raphael/.DS_Store')
-        assert is_url_valid('file:///Users/raphael/.DS_Store')
+        assert not allbar.utility.is_url_valid('http')
+        assert not allbar.utility.is_url_valid('https')
+        assert not allbar.utility.is_url_valid('https://')
+        assert not allbar.utility.is_url_valid('Hello World!')
+        assert allbar.utility.is_url_valid('http://google.com')
+        assert allbar.utility.is_url_valid('https://google.com')
+        assert allbar.utility.is_url_valid('file://localhost/Users/raphael/.DS_Store')
+        assert allbar.utility.is_url_valid('file:///Users/raphael/.DS_Store')
 
     def test_can_run(self, app):
         app.run()
@@ -115,6 +115,8 @@ class TestAllBar():
         assert not allbar.update.Validator().is_valid({"ttl":"invalid"})
 
     def test_datastore_corrupt_data_does_not_update(self, monkeypatch, app):
+        demo_mode_json = allbar.utility.load_packaged_json_file('demo_mode.json')
+        demo_mode = json.loads(demo_mode_json)
         monkeypatch.setattr(urllib.request, 'urlopen', tests.mocks.urllib.urlopen)
         app.datastore.set_update_url('https://under.testing/update')
         corrupt_responses = [
@@ -123,9 +125,9 @@ class TestAllBar():
         ]
         for response in corrupt_responses:
             tests.mocks.urllib.mock_responses['https://under.testing/update'] = response
-            assert [] == app.datastore.get_current_menu_settings()
-            assert '0:00' == app.datastore.get_current_indicator()
-            assert '0:00' == app.datastore.get_current_indicator()
+            assert demo_mode['menu'] == app.datastore.get_current_menu_settings()
+            assert demo_mode['indicators'][0] == app.datastore.get_current_indicator()
+            assert demo_mode['indicators'][1] == app.datastore.get_current_indicator()
 
     def test_datastore_updates(self, monkeypatch, app):
         new_data = self.get_minimal_update_json()
