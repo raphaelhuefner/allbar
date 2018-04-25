@@ -1,14 +1,10 @@
 import configparser
 import json
-import sys
 import urllib.parse
 import urllib.request
 import webbrowser
 
-if ('pytest' not in sys.modules):
-    import extrarumps as rumps
-else:
-    import tests.mocks.rumps as rumps
+import extrarumps as rumps
 
 class AllBarApp(rumps.App):
     def __init__(self, logger=None):

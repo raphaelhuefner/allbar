@@ -1,10 +1,6 @@
 import configparser
-import sys
 
-if ('pytest' not in sys.modules):
-    import rumps as rumps
-else:
-    import tests.mocks.rumps as rumps
+import extrarumps as rumps
 
 import allbar.utility
 

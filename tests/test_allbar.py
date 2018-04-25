@@ -38,6 +38,8 @@ class TestAllBar():
         assert 'pytest' in sys.modules
 
     def test_url_validation(self):
+        assert not allbar.utility.is_url_valid(None)
+        assert not allbar.utility.is_url_valid(1337)
         assert not allbar.utility.is_url_valid('http')
         assert not allbar.utility.is_url_valid('https')
         assert not allbar.utility.is_url_valid('https://')
@@ -118,12 +120,22 @@ class TestAllBar():
         demo_mode_json = allbar.utility.load_packaged_json_file('demo_mode.json')
         demo_mode = json.loads(demo_mode_json)
         monkeypatch.setattr(urllib.request, 'urlopen', tests.mocks.urllib.urlopen)
-        app.datastore.set_update_url('https://under.testing/update')
-        corrupt_responses = [
-            tests.mocks.urllib.HTTPResponse(404, 'not found'),
-            tests.mocks.urllib.HTTPResponse(200, '{"funny":"json"}'),
+        corrupt_examples = [
+            (
+                'https://under.testing/update',
+                tests.mocks.urllib.HTTPResponse(404, 'not found')
+            ),
+            (
+                'https://under.testing/update',
+                tests.mocks.urllib.HTTPResponse(200, '{"funny":"json"}')
+            ),
+            (
+                'broken_config://nothing',
+                tests.mocks.urllib.HTTPResponse(404, 'not found')
+            ),
         ]
-        for response in corrupt_responses:
+        for url, response in corrupt_examples:
+            app.datastore.set_update_url(url)
             tests.mocks.urllib.mock_responses['https://under.testing/update'] = response
             assert demo_mode['menu'] == app.datastore.get_current_menu_settings()
             assert demo_mode['indicators'][0] == app.datastore.get_current_indicator()
