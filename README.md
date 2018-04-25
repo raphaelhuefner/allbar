@@ -62,4 +62,4 @@ This app is maintained by https://github.com/raphaelhuefner
 This app is based on the [rumps](https://github.com/jaredks/rumps) library.
 
 #### License
-This app is released under the [MIT License](https://opensource.org/licenses/MIT). See the LICENSE file.
+This app is released under the [MIT License](https://opensource.org/licenses/MIT). See the [LICENSE](https://github.com/raphaelhuefner/allbar/blob/master/LICENSE) file.
