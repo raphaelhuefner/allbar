@@ -24,6 +24,16 @@ if [ "$VIRTUAL_ENV" != "`pwd`" ]; then
   source ./bin/activate
 fi
 
+echo "####################################################"
+echo "Upgrade pip in the Virtual Environment if necessary."
+echo "####################################################"
+pip install --upgrade pip
+
+echo "###################################################"
+echo "Install required packages into Virtual Environment."
+echo "###################################################"
+pip install --requirement requirements.txt
+
 echo "######################"
 echo "Packaging AllBar.app ."
 echo "######################"
