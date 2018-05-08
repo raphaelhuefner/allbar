@@ -85,6 +85,13 @@
                 "headers": {
                 }
             }
+        },
+        {
+            "title": "Menu Item 6",
+            "active": false,
+            "request": {
+                "url": "https://under.testing/menu-item-6"
+            }
         }
     ]
 }

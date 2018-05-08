@@ -6,12 +6,18 @@ import webbrowser
 
 import extrarumps as rumps
 
+
 class AllBarApp(rumps.App):
     def __init__(self, logger=None):
         super(AllBarApp, self).__init__("AllBar", "x:xx")
         self.menu = rumps.MenuItem('Preferences', self.preferences)
-        self.config = None # inject with set_config() before calling run()
-        self.datastore = None # inject with set_datastore() before calling run()
+
+        # inject with set_config() before calling run()
+        self.config = None
+
+        # inject with set_datastore() before calling run()
+        self.datastore = None
+
         self.previous_indicator = ''
         self.previous_menu_settings = []
         self.logger = logger
@@ -75,7 +81,8 @@ class AllBarApp(rumps.App):
 
     def make_request_menu_item(self, title, settings):
         menu_item = rumps.MenuItem(title, self.send_request)
-        settings['request']['method'] = settings['request']['method'] if 'method' in settings['request'] else 'GET'
+        if 'method' not in settings['request']:
+            settings['request']['method'] = 'GET'
         menu_item.request = settings['request']
         if 'prompt' in settings:
             menu_item.prompt = settings['prompt']
@@ -85,13 +92,21 @@ class AllBarApp(rumps.App):
         if self.has_prompt(sender):
             prompt_response = self.prompt_user(sender.prompt)
             if prompt_response:
-                request = self.make_request_with_prompt_data(sender.request, prompt_response, sender.prompt['placeholder'])
+                request = self.make_request_with_prompt_data(
+                    sender.request,
+                    prompt_response,
+                    sender.prompt['placeholder']
+                )
             else:
                 return
         else:
             request = self.make_request(sender.request)
         with urllib.request.urlopen(request) as http_response:
-            self.log('got {code} for {method} {url}'.format(code=http_response.getcode(), method=request.method, url=request.full_url))
+            self.log('got {code} for {method} {url}'.format(
+                code=http_response.getcode(),
+                method=request.method,
+                url=request.full_url
+            ))
             self.datastore.invalidate_cache()
 
     def has_prompt(self, sender):
@@ -103,46 +118,59 @@ class AllBarApp(rumps.App):
 
     def prompt_user(self, prompt):
         response = rumps.Window(
-            message = prompt['message'],
-            title = prompt['title'],
-            cancel = True,
+            message=prompt['message'],
+            title=prompt['title'],
+            cancel=True,
         ).run()
         return response.text if response.clicked else None
 
-    def make_request_with_prompt_data(self, request_config, prompt_response, prompt_placeholder):
-        url = request_config['url'].replace(prompt_placeholder, urllib.parse.quote(prompt_response))
+    def make_request_with_prompt_data(self, request_config, prompt_response,
+                                      prompt_placeholder):
+        url_response = urllib.parse.quote(prompt_response)
+        url = request_config['url'].replace(prompt_placeholder, url_response)
         request = urllib.request.Request(url, method=request_config['method'])
         if 'headers' in request_config:
             for key, value in request_config['headers'].items():
-                new_value = value.replace(prompt_placeholder, urllib.parse.quote(prompt_response))
+                new_value = value.replace(prompt_placeholder, url_response)
                 request.add_header(key, new_value)
         if 'body' in request_config:
-            body = self.put_prompt_data_into_body(request_config['body'], prompt_response, prompt_placeholder)
+            body = self.put_prompt_data_into_body(
+                request_config['body'],
+                prompt_response,
+                prompt_placeholder
+            )
             self.encode_body(request, body)
         return request
 
-    def put_prompt_data_into_body(self, body, prompt_response, prompt_placeholder):
+    def put_prompt_data_into_body(self, body,
+                                  prompt_response, prompt_placeholder):
         if isinstance(body, dict):
             new_body = {}
             for i in body:
-                new_body[i] = self.put_prompt_data_into_body(body[i], prompt_response, prompt_placeholder)
+                new_body[i] = self.put_prompt_data_into_body(
+                    body[i], prompt_response, prompt_placeholder
+                )
             return new_body
         elif isinstance(body, list):
             new_body = []
             for i in body:
-                new_body.append(self.put_prompt_data_into_body(i, prompt_response, prompt_placeholder))
+                new_body.append(self.put_prompt_data_into_body(
+                    i, prompt_response, prompt_placeholder
+                ))
             return new_body
         elif isinstance(body, str):
             return body.replace(prompt_placeholder, prompt_response)
         else:
             return body
 
-    def make_request(self, request_config):
-        url = request_config['url']
-        headers = request_config['headers'] if 'headers' in request_config else {}
-        request = urllib.request.Request(url, headers=headers, method=request_config['method'])
-        if 'body' in request_config:
-            self.encode_body(request, request_config['body'])
+    def make_request(self, cfg):
+        url = cfg['url']
+        headers = cfg['headers'] if 'headers' in cfg else {}
+        request = urllib.request.Request(
+            url, headers=headers, method=cfg['method']
+        )
+        if 'body' in cfg:
+            self.encode_body(request, cfg['body'])
         return request
 
     def encode_body(self, request, body):

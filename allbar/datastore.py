@@ -5,6 +5,7 @@ import urllib.request
 import allbar.update
 import allbar.utility
 
+
 class AllBarDataStore():
     def __init__(self, logger=None):
         self.cache = {

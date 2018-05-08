@@ -2,7 +2,8 @@ import json
 
 import jsonschema
 
-import allbar.utility
+from allbar.utility import load_packaged_json_file
+
 
 class Validator():
     def __init__(self, logger=None):
@@ -16,7 +17,7 @@ class Validator():
 
     def get_schema_json(self):
         if not self._schema_json:
-            self._schema_json = allbar.utility.load_packaged_json_file('update_schema.json')
+            self._schema_json = load_packaged_json_file('update_schema.json')
         return self._schema_json
 
     def get_schema(self):
