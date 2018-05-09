@@ -1,4 +1,3 @@
-import configparser
 import json
 import urllib.parse
 import urllib.request
@@ -89,7 +88,7 @@ class AllBarApp(rumps.App):
         return menu_item
 
     def send_request(self, sender):
-        if self.has_prompt(sender):
+        if hasattr(sender, 'prompt'):
             prompt_response = self.prompt_user(sender.prompt)
             if prompt_response:
                 request = self.make_request_with_prompt_data(
@@ -108,13 +107,6 @@ class AllBarApp(rumps.App):
                 url=request.full_url
             ))
             self.datastore.invalidate_cache()
-
-    def has_prompt(self, sender):
-        try:
-            prompt = sender.prompt
-            return True
-        except Exception as e:
-            return False
 
     def prompt_user(self, prompt):
         response = rumps.Window(
