@@ -1,3 +1,6 @@
+"""
+"""
+
 import json
 import urllib.parse
 import urllib.request
@@ -7,7 +10,13 @@ import extrarumps as rumps
 
 
 class AllBarApp(rumps.App):
+    """
+    """
+    # pylint: disable=too-many-instance-attributes
+
     def __init__(self, logger=None):
+        """
+        """
         super(AllBarApp, self).__init__("AllBar", "x:xx")
         self.menu = rumps.MenuItem('Preferences', self.preferences)
 
@@ -22,16 +31,24 @@ class AllBarApp(rumps.App):
         self.logger = logger
 
     def log(self, *args):
+        """
+        """
         if hasattr(self.logger, '__call__'):
             self.logger(*args)
 
     def set_config(self, config):
+        """
+        """
         self.config = config
 
     def set_datastore(self, datastore):
+        """
+        """
         self.datastore = datastore
 
     def update_indicator(self):
+        """
+        """
         current_indicator = self.datastore.get_current_indicator()
         if self.previous_indicator != current_indicator:
             self.previous_indicator = current_indicator
@@ -43,6 +60,8 @@ class AllBarApp(rumps.App):
                 self.title = current_indicator['title']
 
     def update_menu(self):
+        """
+        """
         current_menu_settings = self.datastore.get_current_menu_settings()
         if self.previous_menu_settings != current_menu_settings:
             self.previous_menu_settings = current_menu_settings
@@ -54,11 +73,13 @@ class AllBarApp(rumps.App):
             self.menu.add(rumps.MenuItem('Quit', rumps.quit_application))
 
     def make_menu_item(self, settings):
+        """
+        """
         if 'separator' in settings:
             return None
         title = settings['title']
         if 'disabled' in settings:
-            menu_item = self.make_disabled_menu_item(title, settings)
+            menu_item = self.make_disabled_menu_item(title)
         if 'open' in settings:
             menu_item = self.make_open_menu_item(title, settings)
         if 'request' in settings:
@@ -66,19 +87,33 @@ class AllBarApp(rumps.App):
         menu_item.state = settings['active']
         return menu_item
 
-    def make_disabled_menu_item(self, title, settings):
+    def make_disabled_menu_item(self, title):
+        """
+        """
+        # pylint: disable=no-self-use
+        # ^^ keep this inside class along sister methods make_*_menu_item()
+        # see https://en.wikipedia.org/wiki/Principle_of_least_astonishment
         menu_item = rumps.MenuItem(title, None)
         return menu_item
 
     def make_open_menu_item(self, title, settings):
+        """
+        """
         menu_item = rumps.MenuItem(title, self.open_url)
         menu_item.open_url = settings['open']
         return menu_item
 
     def open_url(self, sender):
+        """
+        """
+        # pylint: disable=no-self-use
+        # ^^ keep this inside class along sister menu callback methods
+        # see https://en.wikipedia.org/wiki/Principle_of_least_astonishment
         webbrowser.open_new_tab(sender.open_url)
 
     def make_request_menu_item(self, title, settings):
+        """
+        """
         menu_item = rumps.MenuItem(title, self.send_request)
         if 'method' not in settings['request']:
             settings['request']['method'] = 'GET'
@@ -88,6 +123,11 @@ class AllBarApp(rumps.App):
         return menu_item
 
     def send_request(self, sender):
+        """
+        """
+        # pylint: disable=fixme
+        # TODO Refactor HTTP request sending into separate module.
+        # see https://github.com/raphaelhuefner/allbar/issues/1
         if hasattr(sender, 'prompt'):
             prompt_response = self.prompt_user(sender.prompt)
             if prompt_response:
@@ -109,6 +149,12 @@ class AllBarApp(rumps.App):
             self.datastore.invalidate_cache()
 
     def prompt_user(self, prompt):
+        """
+        """
+        # pylint: disable=no-self-use
+        # pylint: disable=fixme
+        # TODO Refactor user prompting sending into separate module.
+        # see https://github.com/raphaelhuefner/allbar/issues/2
         response = rumps.Window(
             message=prompt['message'],
             title=prompt['title'],
@@ -118,6 +164,8 @@ class AllBarApp(rumps.App):
 
     def make_request_with_prompt_data(self, request_config, prompt_response,
                                       prompt_placeholder):
+        """
+        """
         url_response = urllib.parse.quote(prompt_response)
         url = request_config['url'].replace(prompt_placeholder, url_response)
         request = urllib.request.Request(url, method=request_config['method'])
@@ -136,6 +184,8 @@ class AllBarApp(rumps.App):
 
     def put_prompt_data_into_body(self, body,
                                   prompt_response, prompt_placeholder):
+        """
+        """
         if isinstance(body, dict):
             new_body = {}
             for i in body:
@@ -152,40 +202,56 @@ class AllBarApp(rumps.App):
             return new_body
         elif isinstance(body, str):
             return body.replace(prompt_placeholder, prompt_response)
-        else:
-            return body
+        return body
 
     def make_request(self, cfg):
-        url = cfg['url']
-        headers = cfg['headers'] if 'headers' in cfg else {}
-        request = urllib.request.Request(
-            url, headers=headers, method=cfg['method']
-        )
+        """
+        """
+        req_cfg = {
+            'url': cfg['url'],
+            'headers': cfg['headers'] if 'headers' in cfg else {},
+            'method': cfg['method'] if 'method' in cfg else 'GET'
+        }
+        request = urllib.request.Request(**req_cfg)
         if 'body' in cfg:
             self.encode_body(request, cfg['body'])
         return request
 
     def encode_body(self, request, body):
+        """
+        """
         content_type = self.ensure_content_type(request)
-        if 'application/x-www-form-urlencoded' == content_type:
+        if content_type == 'application/x-www-form-urlencoded':
             request.data = urllib.parse.urlencode(body).encode()
-        elif 'application/json' == content_type:
+        elif content_type == 'application/json':
             request.data = json.dumps(body).encode()
 
     def ensure_content_type(self, request):
+        """
+        """
+        # pylint: disable=no-self-use
+        # pylint: disable=fixme
+        # TODO Refactor HTTP request sending into separate module.
+        # see https://github.com/raphaelhuefner/allbar/issues/1
         if not request.has_header('Content-type'):
             request.add_header('Content-type', 'application/json')
         return request.get_header('Content-type')
 
-    def preferences(self, sender):
+    def preferences(self, _):
+        """
+        """
         self.config.show_ui()
 
     def ensure_current_update_url(self):
+        """
+        """
         update_url = self.config.get_update_url()
         self.datastore.set_update_url(update_url)
 
     @rumps.timer(1)
     def refresh(self, _):
+        """
+        """
         self.ensure_current_update_url()
         self.update_menu()
         self.update_indicator()
