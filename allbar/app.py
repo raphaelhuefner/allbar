@@ -8,23 +8,24 @@ import webbrowser
 
 import extrarumps as rumps
 
+import allbar.configuration
+import allbar.datastore
+
 
 class AllBarApp(rumps.App):
     """
     """
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, logger=None):
+    def __init__(self, config, datastore, logger=None):
         """
         """
         super(AllBarApp, self).__init__("AllBar", "x:xx")
         self.menu = rumps.MenuItem('Preferences', self.preferences)
 
-        # inject with set_config() before calling run()
-        self.config = None
+        self.set_config(config)
 
-        # inject with set_datastore() before calling run()
-        self.datastore = None
+        self.set_datastore(datastore)
 
         self.previous_indicator = ''
         self.previous_menu_settings = []
@@ -37,13 +38,18 @@ class AllBarApp(rumps.App):
             self.logger(*args)
 
     def set_config(self, config):
-        """
-        """
+        """Inject AllBarConfiguration (or subclass) as dependency."""
+        if not isinstance(config, allbar.configuration.AllBarConfiguration):
+            msg = 'Can not use as configuration: {cfg}'
+            raise ValueError(msg.format(cfg=repr(config)))
         self.config = config
+        self.config.set_app(self)
 
     def set_datastore(self, datastore):
-        """
-        """
+        """Inject AllBarDataStore (or subclass) as dependency."""
+        if not isinstance(datastore, allbar.datastore.AllBarDataStore):
+            msg = 'Can not use as datastore: {store}'
+            raise ValueError(msg.format(store=repr(datastore)))
         self.datastore = datastore
 
     def update_indicator(self):

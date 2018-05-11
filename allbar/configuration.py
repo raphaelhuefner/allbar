@@ -6,8 +6,8 @@ import allbar.utility
 
 
 class AllBarConfiguration():
-    def __init__(self, app, file_name='allbar.ini', logger=None):
-        self.app = app
+    def __init__(self, file_name='allbar.ini', logger=None):
+        self.app = None
         self.file_name = file_name
         self.logger = logger
         self.update_url = None
@@ -16,6 +16,11 @@ class AllBarConfiguration():
     def log(self, *args):
         if hasattr(self.logger, '__call__'):
             self.logger(*args)
+
+    def set_app(self, app):
+        """
+        """
+        self.app = app
 
     def show_ui(self):
         url = self.read()

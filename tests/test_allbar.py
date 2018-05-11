@@ -23,19 +23,36 @@ class TestAllBar():
         logger = noop
         # logger = print
 
-        app = AllBarApp(logger=logger)
-
-        config = AllBarConfiguration(app, logger=logger)
-        app.set_config(config)
-
+        config = AllBarConfiguration(logger=logger)
         store = AllBarDataStore(logger=logger)
-        app.set_datastore(store)
+
+        app = AllBarApp(config=config, datastore=store, logger=logger)
 
         return app
 
     def test_has_pytest(self):
         import sys
         assert 'pytest' in sys.modules
+
+    def test_rejects_invalid_config(self):
+        def noop(*args):
+            pass
+
+        # config = AllBarConfiguration(logger=noop)
+        store = AllBarDataStore(logger=noop)
+
+        with pytest.raises(ValueError):
+            app = AllBarApp(config=None, datastore=store, logger=noop)
+
+    def test_rejects_invalid_datastore(self):
+        def noop(*args):
+            pass
+
+        config = AllBarConfiguration(logger=noop)
+        # store = AllBarDataStore(logger=noop)
+
+        with pytest.raises(ValueError):
+            app = AllBarApp(config=config, datastore=None, logger=noop)
 
     def test_url_validation(self):
         assert not allbar.utility.is_url_valid(None)
