@@ -1,10 +1,13 @@
+"""Provide general toolbox."""
+
 import os.path
 
 import modulegraph.zipio
 import rfc3987
 
 
-def is_url_valid(url, valid_schemes=['http', 'https', 'file', 'data', 'ftp']):
+def is_url_valid(url, valid_schemes=('http', 'https', 'file', 'data', 'ftp')):
+    """Validate URLs usable with Python's urllib.request.urlopen()."""
     if not isinstance(url, str):
         return False
     try:
@@ -15,19 +18,20 @@ def is_url_valid(url, valid_schemes=['http', 'https', 'file', 'data', 'ftp']):
         parts['scheme'] in valid_schemes
         and
         (
-            '' != parts['authority']
+            parts['authority'] != ''
             or
             (
-                'file' == parts['scheme']
+                parts['scheme'] == 'file'
                 and
-                '' != parts['path']
+                parts['path'] != ''
             )
         )
     )
 
 
 def load_packaged_json_file(filename):
+    """Load JSON files from a ZIP file when packaged as a macOS app."""
     fullfilename = os.path.join(os.path.dirname(__file__), 'json', filename)
-    with modulegraph.zipio.open(fullfilename) as f:
-        filecontents = f.read()
+    with modulegraph.zipio.open(fullfilename) as file:
+        filecontents = file.read()
     return filecontents
