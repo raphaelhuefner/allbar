@@ -31,7 +31,7 @@ class AllBarApp(rumps.App):
         self.logger = logger
 
     def log(self, *args):
-        """Log events in this class as configured.
+        """Log events in this class if configured.
 
         Defaults to no logging. (See __init__() for changing that.)
         """
