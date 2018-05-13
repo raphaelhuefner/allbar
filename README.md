@@ -1,8 +1,10 @@
 # AllBar
 
-### The AllBar macOS Status Bar Multi Tool
+### The macOS Status Bar Multi Tool
 
-![screenshot](https://raw.githubusercontent.com/raphaelhuefner/allbar/master/docs/img/AllBar-Screenshot.jpg)
+A bigger (and slightly more complex) sibling of [AnyBar](https://github.com/tonsky/AnyBar). Check this out:
+
+![screenshot](docs/img/AllBar-Screenshot.jpg)
 
 #### Description
 A customizable macOS status bar thingamabob for anything you have to keep in mind (and in view!) while you work on your computer, like:
@@ -49,7 +51,7 @@ To be honest, I'm not sure what to write here yet. Usage totally depends on how 
 
 
 #### Contributing
-Uncoded contributions (reviews, use cases, action shots, blog posts, criticism, documentation, etc.) big or small are **as much welcome as** any code contributions would be. If you don't think opening an issue or a pull request is the right way to go, please stick my GitHub username in front of `@gmail.com` to get in touch with me directly.
+Uncoded contributions (reviews, use cases, action shots, blog posts, criticism, documentation, etc.) big or small are **as much welcome as** any code contributions would be. If you think opening an issue or a pull request is not the right way to go, please stick my GitHub username in front of `@gmail.com` to get in touch with me directly.
 
 **Before you invest any larger amounts of time into your contribution, please get in touch with me for coordination!**
 
