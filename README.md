@@ -4,6 +4,8 @@
 
 A bigger (and slightly more complex) sibling of [AnyBar](https://github.com/tonsky/AnyBar). Check this out:
 
+![screenshot](docs/img/AllBar-Screenshot-Diagram.jpg)
+
 ![screenshot](docs/img/AllBar-Screenshot.jpg)
 
 #### Description
