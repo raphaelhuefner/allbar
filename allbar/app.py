@@ -63,7 +63,10 @@ class AllBarApp(rumps.App):
                 self.title = current_indicator
             else:
                 self.icon = current_indicator['icon']
-                self.title = current_indicator['title']
+                if 'title' in current_indicator:
+                    self.title = current_indicator['title']
+                else:
+                    self.title = None
 
     def update_menu(self):
         """Change the pull-down menu of our status bar item."""

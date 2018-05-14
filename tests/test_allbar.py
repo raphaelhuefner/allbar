@@ -124,6 +124,15 @@ class TestAllBar():
         with open(file_name) as f:
             return f.read()
 
+    def test_update_json_schema_is_valid(self):
+        update_schema_json = allbar.utility.load_packaged_json_file('update_schema.json')
+        try:
+            update_schema = json.loads(update_schema_json)
+        except json.JSONDecodeError as err:
+            print(repr(err))
+            raise err
+        assert 'definitions' in update_schema
+
     def test_update_validator_accepts_schematic_json_string(self):
         assert allbar.update.Validator().is_valid(self.get_minimal_update_json())
 

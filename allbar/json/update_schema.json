@@ -3,167 +3,240 @@
     "id": "http://rh.io/json-schema/allbar-update-0.0.1.json",
     "title": "Update Record",
     "description": "Update Record for the AllBar macOS Status Bar Multi Tool.",
-    "type": "object",
-    "properties": {
-        "ttl": {
+    "definitions": {
+        "time_to_live": {
             "title": "Time To Live",
             "description": "The time this data is valid for in seconds.",
             "type": "integer",
             "minimum": 0
         },
-        "indicators": {
-            "oneOf": [
-                {
-                    "title": "Status Bar Indicator Strings",
-                    "description": "A list of strings to show in the status bar. Rotated one per second.",
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string",
-                        "minLength": 1
-                    }
+        "indicator": {
+            "text": {
+                "item": {
+                    "title": "Status Bar Indicator String",
+                    "description": "At least 1 char long so that there is something to click on. To save PNG creation, try Unicode symbols as easy icon replacements.",
+                    "type": "string",
+                    "minLength": 1
                 },
-                {
-                    "title": "Status Bar Indicator Icon/Title Combos",
-                    "description": "A list of icon/title combos to show in the status bar. Rotated one per second.",
+                "list": {
+                    "title": "Status Bar Indicator Strings",
+                    "description": "A list of strings to show in the status bar. Rotated one per second, for example to make a ':' blink for an active timer.",
                     "type": "array",
                     "minItems": 1,
-                    "oneOf": [
-                        {
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "icon": {
-                                        "type": "null"
-                                    },
-                                    "title": {
-                                        "type": "string",
-                                        "minLength": 1
-                                    }
-                                },
-                                "required": ["icon", "title"]
-                            }
+                    "items": {"$ref": "#/definitions/indicator/text/item"}
+                }
+            },
+            "icon": {
+                "item": {
+                    "title": "Status Bar Indicator Icon/String Combo",
+                    "description": "Those icons are dynamic: Think of them as a tiny HTML <canvas> which can be seen all the time.",
+                    "type": "object",
+                    "properties": {
+                        "icon": {
+                            "title": "Status Bar Indicator Icon",
+                            "description": "Must be a PNG 20px high, encoded as a data: URL. Can be as wide as you can tolerate ;-)",
+                            "type": "string",
+                            "pattern": "^data:image/png;base64,"
                         },
-                        {
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "icon": {
-                                        "type": "string",
-                                        "pattern": "^data:image/png;base64,"
-                                    },
-                                    "title": {
-                                        "type": ["string", "null"]
-                                    }
-                                },
-                                "required": ["icon", "title"]
-                            }
+                        "title": {
+                            "title": "Status Bar Indicator String",
+                            "description": "Next to an icon, text is optional.",
+                            "type": "string"
                         }
+                    },
+                    "required": ["icon"]
+                },
+                "list": {
+                    "title": "Status Bar Indicator Icon/String Combos",
+                    "description": "A list of icon/title combos to show in the status bar. Rotated one per second: probably too slow for a GIF, but it should not be too distracting, either. ;-)",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {"$ref": "#/definitions/indicator/icon/item"}
+                }
+            },
+            "list": {
+                "oneOf": [
+                    {"$ref": "#/definitions/indicator/text/list"},
+                    {"$ref": "#/definitions/indicator/icon/list"}
+                ]
+            }
+        },
+        "request_headers": {
+            "title": "A list of headers for an HTTP request",
+            "description": "Separate definition to deal with Content-Type headers.",
+            "type": "object",
+            "patternProperties": {
+                "^[Cc]ontent-[Tt]ype$": {
+                    "title": "Content-Type",
+                    "description": "Restrict to those content types we know how to encode.",
+                    "type": "string",
+                    "enum": [
+                        "application/json",
+                        "application/x-www-form-urlencoded"
                     ]
                 }
-            ]
+            },
+            "additionalProperties": {
+                "title": "All HTTP headers other than Content-Type",
+                "description": "If a 'prompt' is present, URL-quoted user input can be replaced into those header values which contain the prompt placeholder string.",
+                "type": "string"
+            }
+        },
+        "request": {
+            "title": "An HTTP request",
+            "description": "Triggered by clicking on the containing menu item.",
+            "type": "object",
+            "properties": {
+                "method": {
+                    "title": "HTTP request method",
+                    "description": "Like GET, POST, etc. See https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods",
+                    "type": "string",
+                    "default": "GET"
+                },
+                "url": {
+                    "title": "The fully qualified URL to send the request to",
+                    "description": "If a 'prompt' is present, and the URL contains the prompt placeholder string, URL-quoted user input can be replaced into the URL.",
+                    "type": "string",
+                    "format": "uri"
+                },
+                "headers": {"$ref": "#/definitions/request_headers"},
+                "body": {
+                    "title": "The request body as a JSON data structure",
+                    "description": "Can be nested for 'application/json'. Should be flat for 'application/x-www-form-urlencoded'. If a 'prompt' is present, user input can be replaced into those field values which contain the prompt placeholder string.",
+                    "type": "object"
+                }
+            },
+            "required": ["url"]
+        },
+        "prompt": {
+            "title": "Shows a GUI text field dialog",
+            "description": "Prompt the user for text input before sending an HTTP request. Optional.",
+            "type": "object",
+            "properties": {
+                "title": {
+                    "title": "Dialog Title",
+                    "description": "The window title for the GUI text field dialog",
+                    "type": "string"
+                },
+                "message": {
+                    "title": "Text Field Explanation / Label",
+                    "description": "Explain in plain English what input you expect from the user.",
+                    "type": "string"
+                },
+                "placeholder": {
+                    "title": "User Input Replacement Tag",
+                    "description": "Note: Not the UI text field placeholder text! If this string is encountered in the request URL, headers or body, it will get replaced by the actual user input.",
+                    "type": "string",
+                    "default": "prompt"
+                }
+            },
+            "required": ["title", "message", "placeholder"]
+        },
+        "menu_item": {
+            "separator": {
+                "title": "Menu separator line",
+                "description": "Draws a line in the menu.",
+                "type": "object",
+                "properties": {
+                    "separator": {
+                        "title": "Separator flag",
+                        "description": "Mark this menu item as separator.",
+                        "type": "boolean",
+                        "enum": [true]
+                    }
+                },
+                "required": ["separator"]
+            },
+            "titled_trait": {
+                "title": "Title and activity indicator for menu items",
+                "description": "Menu items which include this trait will have a text title and an activity indicator. (Usually a checkmark if active.)",
+                "properties": {
+                    "title": {
+                        "title": "Menu item text",
+                        "description": "The text to use as the menu item.",
+                        "type": "string"
+                    },
+                    "active": {
+                        "title": "Activity indicator",
+                        "description": "Whether or not to show an activity indicator. (Usually a checkmark if active.)",
+                        "type": "boolean"
+                    }
+                },
+                "required": ["title", "active"]
+            },
+            "disabled": {
+                "title": "Disabled Menu Item",
+                "description": "Can not be clicked and is usually shown as greyed-out. Also good for some extra info beyond the status bar.",
+                "type": "object",
+                "allOf": [
+                    {"$ref": "#/definitions/menu_item/titled_trait"},
+                    {
+                        "properties": {
+                            "disabled": {
+                                "title": "Disabled flag",
+                                "description": "Mark this menu item as disabled.",
+                                "type": "boolean",
+                                "enum": [true]
+                            }
+                        },
+                        "required": ["disabled"]
+                    }
+                ]
+            },
+            "open": {
+                "title": "Menu Item to open URL",
+                "description": "Open the configured URL in the default web browser. Use this for advanced actions beyond just clicking a menu item in the status bar menu.",
+                "type": "object",
+                "allOf": [
+                    {"$ref": "#/definitions/menu_item/titled_trait"},
+                    {
+                        "properties": {
+                            "open": {
+                                "title": "The URL to open",
+                                "description": "The fully qualified URL to open in a new tab of the default web browser.",
+                                "type": "string",
+                                "format": "uri"
+                            }
+                        },
+                        "required": ["open"]
+                    }
+                ]
+            },
+            "request": {
+                "title": "Menu Item to send an HTTP request",
+                "description": "After the optional user text prompt, send the configured HTTP request with any prompt placeholders replaced by the actual user input.",
+                "type": "object",
+                "allOf": [
+                    {"$ref": "#/definitions/menu_item/titled_trait"},
+                    {
+                        "properties": {
+                            "request": {"$ref": "#/definitions/request"},
+                            "prompt": {"$ref": "#/definitions/prompt"}
+                        },
+                        "required": ["request"]
+                    }
+                ]
+            }
         },
         "menu": {
             "title": "Menu Items",
             "description": "The list of menu items to show. Without 'Preferences' nor 'Quit', which are hard-coded.",
             "type": "array",
             "items": {
-                "type": "object",
                 "oneOf": [
-                    {
-                        "properties": {
-                            "separator": {
-                                "type": "boolean",
-                                "enum": [true]
-                            }
-                        },
-                        "required": ["separator"]
-                    },
-                    {
-                        "properties": {
-                            "title": {
-                                "type": "string"
-                            },
-                            "active": {
-                                "type": "boolean"
-                            }
-                        },
-                        "required": ["title", "active"],
-                        "oneOf": [
-                            {
-                                "properties": {
-                                    "disabled": {
-                                        "type": "boolean",
-                                        "enum": [true]
-                                    }
-                                },
-                                "required": ["disabled"]
-                            },
-                            {
-                                "properties": {
-                                    "open": {
-                                        "type": "string",
-                                        "format": "uri"
-                                    }
-                                },
-                                "required": ["open"]
-                            },
-                            {
-                                "properties": {
-                                    "request": {
-                                        "type": "object",
-                                        "properties": {
-                                            "method": {
-                                                "type": "string",
-                                                "default": "GET"
-                                            },
-                                            "url": {
-                                                "type": "string",
-                                                "format": "uri"
-                                            },
-                                            "headers": {
-                                                "type": "object",
-                                                "patternProperties": {
-                                                    "^[Cc]ontent-[Tt]ype$": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                            "application/json",
-                                                            "application/x-www-form-urlencoded"
-                                                        ]
-                                                    }
-                                                },
-                                                "additionalProperties": {"type": "string"}
-                                            },
-                                            "body": {
-                                                "type": "object"
-                                            }
-                                        },
-                                        "required": ["url"]
-                                    },
-                                    "prompt": {
-                                        "type": "object",
-                                        "properties": {
-                                            "title": {
-                                                "type": "string"
-                                            },
-                                            "message": {
-                                                "type": "string"
-                                            },
-                                            "placeholder": {
-                                                "type": "string",
-                                                "default": "prompt"
-                                            }
-                                        },
-                                        "required": ["title", "message", "placeholder"]
-                                    }
-                                },
-                                "required": ["request"]
-                            }
-                        ]
-                    }
+                    {"$ref": "#/definitions/menu_item/separator"},
+                    {"$ref": "#/definitions/menu_item/disabled"},
+                    {"$ref": "#/definitions/menu_item/open"},
+                    {"$ref": "#/definitions/menu_item/request"}
                 ]
             }
         }
+    },
+    "type": "object",
+    "properties": {
+        "ttl": {"$ref": "#/definitions/time_to_live"},
+        "indicators": {"$ref": "#/definitions/indicator/list"},
+        "menu": {"$ref": "#/definitions/menu"}
     },
     "required": ["ttl", "indicators", "menu"]
 }
