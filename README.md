@@ -27,7 +27,7 @@ Also comes with a customizable pull down menu to trigger simple related actions,
 - ...
 - anything else you can trigger with a click on a menu item ;-)
 
-Both the status bar ~~thingamabob~~ indicator and the pull down menu get configured and updated by the same simple JSON payload, which can be provided by any (local development) web server under your control, or even just a local JSON file. (Remember to overwrite that JSON file when you want to change the indicator.)
+Both the status bar ~~thingamabob~~ indicator and the pull down menu get configured and updated by the same [simple JSON payload](docs/Format-of-JSON-updates.md), which can be provided by any (local development) web server under your control, or even just a local JSON file. (Remember to overwrite that JSON file when you want to change the indicator.)
 
 
 #### Table of Contents
@@ -52,6 +52,8 @@ Both the status bar ~~thingamabob~~ indicator and the pull down menu get configu
 
 #### Usage
 To be honest, I'm not sure what to write here yet. Usage totally depends on how you configure and sculpt the server script.
+
+See the [separate documentation for the format of JSON updates](docs/Format-of-JSON-updates.md) to see what's possible.
 
 
 #### Contributing
