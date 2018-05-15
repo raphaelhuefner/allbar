@@ -70,7 +70,10 @@ The `menu` field is an array. Each array element is a JSON object and can be one
 - [Menu Item to open URL](#menu-item-to-open-url)
 - [Menu Item to send an HTTP request](#menu-item-to-send-an-http-request)
 
-Except for Separator Items, each Menu Item has a `title` string field for the actual item text and an `active` boolean flag field which usually renders as a checkmark if set to `true`.
+Each Menu Item (except for Separator Items) has:
+
+- a `title` string field for the actual item text
+- an `active` boolean flag field which usually renders as a checkmark if set to `true`
 
 Sub-menus with nested items are not supported yet.
 
@@ -96,7 +99,7 @@ This is a JSON object with `title` and `active` fields and a boolean field `disa
 }
 ```
 
-Such a Menu Item can not be clicked and is usually shown as greyed-out. This can also be used to convey for some extra information beyond the status bar.
+Such a Menu Item can not be clicked and is usually shown as greyed-out. This can also be used to reveal some extra information when the status bar indicator gets clicked.
 
 
 #### Menu Item to open URL
@@ -139,17 +142,66 @@ Here is a quick example:
 }
 ```
 
-After the optional user text prompt, this sends the configured HTTP request with any prompt placeholders replaced by the actual user input.
+If the `prompt` field is present, a GUI dialog with a single text field will be shown after clicking the Menu Item.
+
+Currently, there is no validation of the user input, so it can even turn out to be an empty string.
+
+Once that dialog is confirmed by clicking the "OK" button, the configuration of the HTTP request will be scanned for occurrences of the prompt placeholder string, which will then be replaced by the actual user input.
+
+Then the HTTP request will be sent of as configured.
+
+If the `prompt` field is not present, then the HTTP request will be sent off as configured right away.
+
+Currently, any HTTP response is disregarded. I could imagine that in a future version it could get parsed and a notification bubble could be shown as a feedback of success or failure.
 
 
 ##### GUI Prompt
 
-TBD.
+The `prompt` field is a JSON object with three fields:
 
+- `title` a string to be shown as the window title of the GUI dialog
+- `message` a string to be shown as the introductory text of the GUI dialog
+- `placeholder` a string which will be searched for in the configuration of the HTTP request, to be replaced by the actual user input at the GUI dialog. Replacements in the URL and in header values will be URL-encoded, replacements in field values of the request body will be verbatim, since the body will get encoded anyways, as specified in the `Content-Type` header.
+
+Here is a quick example:
+
+```json
+{
+  "title": "Search the Internet",
+  "message": "Please input some search text:",
+  "placeholder": "prompt_placeholder"
+}
+```
 
 
 ##### HTTP Request
 
-TBD.
+The `request` field is a JSON object with four fields:
 
+- `method` a string to be used as the HTTP request method. See also https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
+- `url` a string containing the fully qualified URL to send the HTTP request to.
+- `headers` a JSON object with only strings as property values. Property names are HTTP request header names, and property values are header values. The `Content-Type` header is restricted to either `application/json` or `application/x-www-form-urlencoded`, the only two ways the AllBar app knows how to encode a request body. See also https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Request_fields
+- `body` a JSON object. It can have nested values for `application/json` and should be flat for `application/x-www-form-urlencoded`.
 
+Here is a quick example:
+
+```json
+{
+  "method": "GET",
+  "url": "https://www.google.com/search?q=prompt_placeholder",
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": "Token 0123456789abcdef0123456789abcdef",
+    "X-Prompted": "The answer is prompt_placeholder."
+  },
+  "body": {
+    "field1": "value1",
+    "field2": {
+      "field2.1": "value2.1",
+      "field2.2": "value2.2",
+      "field2.3": "value2.3 is prompt_placeholder",
+    },
+    "field3": "value3"
+  }
+}
+```

@@ -44,7 +44,7 @@ Both the status bar ~~thingamabob~~ indicator and the pull down menu get configu
 2. Clone this GitHub repository to your macOS machine.
 3. Run `install.sh` inside the local repository.
 4. Now you should have an "AllBar" app in your `Applications` folder, but it can not do much on it's own yet, like a web browser without internet.
-5. Pick one of the server script examples from the following list, customize it to your needs and start serving it from a URL accessible to your macOS machine.
+5. Pick one of the server script examples from the following list, [customize it to your needs](docs/Format-of-JSON-updates.md) and start serving it from a URL accessible to your macOS machine.
     - [System Load Diagram](https://github.com/raphaelhuefner/allbar_server_system_load)
     - Sorry, this list is still very short at this time.
 6. When launching the AllBar app for the first time, enter the URL of that server script into the "Preferences" dialog text box.
